@@ -1,0 +1,7 @@
+{
+  "name": "Bezaw Admin Command Center",
+  "description": "A high-performance, dark-themed retail dashboard for Bezaw supermarket branches, featuring real-time order tracking, arrival alerts, and inventory management.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
