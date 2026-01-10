@@ -18,8 +18,50 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
         name: '',
         category_id: '',
         price: '',
-        stock: ''
+        stock: '',
+        unit: 'pcs'
     });
+
+    const COMMON_UNITS = [
+        // Weight
+        { label: 'Kilogram (kg)', value: 'kg' },
+        { label: 'Gram (g)', value: 'g' },
+        { label: 'Milligram (mg)', value: 'mg' },
+        { label: 'Pound (lb)', value: 'lb' },
+        { label: 'Ounce (oz)', value: 'oz' },
+        // Volume
+        { label: 'Liter (L)', value: 'L' },
+        { label: 'Milliliter (ml)', value: 'ml' },
+        { label: 'Gallon (gal)', value: 'gal' },
+        { label: 'Quart (qt)', value: 'qt' },
+        { label: 'Pint (pt)', value: 'pt' },
+        { label: 'Fluid Ounce (fl oz)', value: 'fl oz' },
+        // Count / Packaging
+        { label: 'Piece (pcs)', value: 'pcs' },
+        { label: 'Pack (pk)', value: 'pack' },
+        { label: 'Box', value: 'box' },
+        { label: 'Bottle (btl)', value: 'btl' },
+        { label: 'Can', value: 'can' },
+        { label: 'Bag', value: 'bag' },
+        { label: 'Bunch', value: 'bunch' },
+        { label: 'Dozen (dz)', value: 'doz' },
+        { label: 'Case', value: 'case' },
+        { label: 'Tray', value: 'tray' },
+        { label: 'Jar', value: 'jar' },
+        { label: 'Tub', value: 'tub' },
+        { label: 'Roll', value: 'roll' },
+        { label: 'Sachet', value: 'sachet' },
+        { label: 'Carton', value: 'carton' },
+        { label: 'Container', value: 'container' },
+        // Fresh Produce specific
+        { label: 'Head', value: 'head' },
+        { label: 'Ear', value: 'ear' },
+        { label: 'Stalk', value: 'stalk' },
+        { label: 'Stem', value: 'stem' },
+        // Others
+        { label: 'Meter (m)', value: 'm' },
+        { label: 'Centimeter (cm)', value: 'cm' }
+    ];
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
@@ -84,10 +126,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
                 body: JSON.stringify({
                     name: formData.name,
                     price: parseFloat(formData.price),
-                    category_id: formData.category_id,
-                    description: `Stock level: ${formData.stock}`,
+                    category_id: parseInt(formData.category_id, 10),
+
+                    description: '', // Reset description or use a real description field if UI had one
                     sku: `SKU-${Math.floor(Math.random() * 10000)}`,
-                    image_url: imageUrl
+                    image_url: imageUrl,
+                    unit: formData.unit,
+                    stock: parseFloat(formData.stock) || 0
                     // branch_id is automatically assigned by backend from req.user
                 }),
             });
@@ -224,19 +269,37 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <Database size={12} /> Initial Stock Level
-                            </label>
-                            <input
-                                required
-                                type="number"
-                                placeholder="Enter quantity"
-                                className={`w-full px-6 py-3 rounded-2xl border transition-all focus:outline-none ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                                    }`}
-                                value={formData.stock}
-                                onChange={e => setFormData({ ...formData, stock: e.target.value })}
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <Database size={12} /> Initial Stock
+                                </label>
+                                <input
+                                    required
+                                    type="number"
+                                    placeholder="Qty"
+                                    className={`w-full px-6 py-3 rounded-2xl border transition-all focus:outline-none ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                                        }`}
+                                    value={formData.stock}
+                                    onChange={e => setFormData({ ...formData, stock: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <PlusCircle size={12} /> Unit
+                                </label>
+                                <select
+                                    required
+                                    className={`w-full px-6 py-3 rounded-2xl border transition-all focus:outline-none ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                    value={formData.unit}
+                                    onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                                >
+                                    {COMMON_UNITS.map(u => (
+                                        <option key={u.value} value={u.value}>{u.label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 

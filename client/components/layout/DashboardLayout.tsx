@@ -23,6 +23,7 @@ import Ads from '../Dashboard/Ads';
 import AddAdModal from '../forms/AddAdModal';
 import Stories from '../Dashboard/Stories';
 import AddStoryModal from '../forms/AddStoryModal';
+import Gifts from '../Dashboard/Gifts';
 
 // ... other imports ...
 
@@ -163,6 +164,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
           isDarkMode={isDarkMode}
           onAddAd={() => setIsAddAdOpen(true)}
         />;
+      case 'gifts': return <Gifts isDarkMode={isDarkMode} />;
       case 'analytics': return <Analytics isDarkMode={isDarkMode} />;
       case 'users': return <Users isDarkMode={isDarkMode} onSelectCustomer={setSelectedCustomer} />;
       case 'settings': return <Settings

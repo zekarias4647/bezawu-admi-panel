@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { check, validationResult, param } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
@@ -50,7 +52,15 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // Create a new story
-router.post('/stories-post', authMiddleware, async (req, res) => {
+router.post('/stories-post', [
+    authMiddleware,
+    check('title', 'Title is required').not().isEmpty().trim().escape(),
+    check('video_url', 'Video URL is required').not().isEmpty()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { title, video_url, link, description } = req.body;
         const { branchId, supermarketId } = req.user;
@@ -78,7 +88,14 @@ router.post('/stories-post', authMiddleware, async (req, res) => {
 });
 
 // Toggle active status
-router.patch('/:id/toggle', authMiddleware, async (req, res) => {
+router.patch('/:id/toggle', [
+    authMiddleware,
+    param('id', 'Invalid Story ID').isInt()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { id } = req.params;
         const result = await query(
@@ -133,7 +150,14 @@ router.get('/:id/comments', authMiddleware, async (req, res) => {
 });
 
 // Like a comment (simple increment for now as requested "store and count")
-router.post('/comments/:commentId/like', authMiddleware, async (req, res) => {
+router.post('/comments/:commentId/like', [
+    authMiddleware,
+    param('commentId', 'Invalid Comment ID').isInt()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { commentId } = req.params;
         // In a real app we'd check if user already liked it in a join table.

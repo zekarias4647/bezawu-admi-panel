@@ -7,7 +7,8 @@ import {
 import {
   TrendingUp, Clock, Users, DollarSign,
   Zap, ArrowUpRight, ArrowDownRight, Activity,
-  Package, CheckCircle, AlertCircle, MessageSquare, Star, Loader2
+  Package, CheckCircle, AlertCircle, MessageSquare, Star, Loader2,
+  Megaphone, Heart, Smartphone, ShoppingBag, Brain, Sparkles
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -21,6 +22,18 @@ interface AnalyticsData {
   hourlyData: any[];
   sentimentData: any[];
   insights: any[];
+  mix: {
+    ads: { activeAds: string; totalAds: string };
+    stories: { activeStories: string; totalStories: string; totalLikes: string; totalComments: string };
+    products: { name: string; value: string; image_url: string }[];
+  };
+  aiPredictions?: {
+    revenue: number;
+    product: string;
+    growth: string;
+    insight: string;
+    confidence: number;
+  };
 }
 
 interface AnalyticsProps {
@@ -50,24 +63,44 @@ const CustomTooltip = ({ active, payload, label, isDarkMode }: any) => {
 const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(true);
   const [error, setError] = useState('');
 
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('token');
+      // 1. Fetch main stats (FAST)
       const response = await fetch('http://localhost:5000/api/analytics/dashboard-stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
       if (response.ok) {
         const result = await response.json();
         setData(result);
+        setLoading(false); // Show the dashboard immediately
+
+        // 2. Fetch AI predictions (SLOW)
+        try {
+          const aiResponse = await fetch('http://localhost:5000/api/analytics/prediction', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (aiResponse.ok) {
+            const aiResult = await aiResponse.json();
+            setData(prev => prev ? { ...prev, aiPredictions: aiResult } : null);
+          }
+        } catch (aiErr) {
+          console.error('AI Prediction fetch failed', aiErr);
+        } finally {
+          setAiLoading(false);
+        }
+
       } else {
         throw new Error('Failed to fetch analytics data');
       }
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
+      setAiLoading(false);
     }
   };
 
@@ -244,6 +277,92 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
         </div>
       </div>
 
+      {/* AI Foresight Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className={`col-span-1 md:col-span-3 p-1 rounded-[2.5rem] bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600`}>
+          <div className={`h-full rounded-[2.3rem] p-8 ${isDarkMode ? 'bg-[#121418]' : 'bg-white'}`}>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-lg shadow-violet-500/30 animate-pulse">
+                <Brain size={24} />
+              </div>
+              <div>
+                <h3 className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  AI Strategic <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">Foresight</span>
+                </h3>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-black">Powered by Gemini Pro</p>
+              </div>
+            </div>
+
+            {aiLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-pulse">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className={`h-40 rounded-3xl border ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}></div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Prediction 1: Revenue */}
+                <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-2 rounded-xl bg-violet-500/10 text-violet-500">
+                      <TrendingUp size={20} />
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black">
+                      {data.aiPredictions?.growth || '+0%'}
+                    </div>
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Next Month Revenue</p>
+                  <h4 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {(data.aiPredictions?.revenue || 0).toLocaleString()} <span className="text-sm font-bold text-slate-500">ETB</span>
+                  </h4>
+                  <div className="mt-4">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                      <span>Confidence Score</span>
+                      <span>{data.aiPredictions?.confidence || 0}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-1000"
+                        style={{ width: `${data.aiPredictions?.confidence || 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Prediction 2: Product */}
+                <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-2 rounded-xl bg-fuchsia-500/10 text-fuchsia-500">
+                      <Sparkles size={20} />
+                    </div>
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Top Product Forecast</p>
+                  <h4 className={`text-xl font-black line-clamp-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {data.aiPredictions?.product || 'Calculating...'}
+                  </h4>
+                  <p className="mt-2 text-xs font-bold text-fuchsia-500">
+                    Predicted Leader
+                  </p>
+                </div>
+
+                {/* Prediction 3: Insight */}
+                <div className={`p-6 rounded-3xl border relative overflow-hidden ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Brain size={64} />
+                  </div>
+                  <div className="flex justify-between items-start mb-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Strategic Insight</p>
+                  </div>
+                  <p className={`text-sm font-medium leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                    "{data.aiPredictions?.insight || 'AI is analyzing current market trends...'}"
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sales Performance (Replaces Rating Velocity) */}
         <div className={`lg:col-span-2 border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -280,9 +399,40 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
           </div>
         </div>
 
-        {/* Key Highlights (Replaces Operational Insights) */}
+        {/* Service Efficiency Chart (NEW) */}
         <div className={`border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h3 className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Service Efficiency</h3>
+              <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-black">Avg. Handover Time Trend (Seconds)</p>
+            </div>
+            <div className="bg-blue-500/10 p-3 rounded-2xl text-blue-500">
+              <Clock size={24} />
+            </div>
+          </div>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.hourlyData}>
+                <defs>
+                  <linearGradient id="colorWait" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#1e293b" : "#e2e8f0"} vertical={false} />
+                <XAxis dataKey="time" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} unit="s" />
+                <Tooltip content={<CustomTooltip isDarkMode={isDarkMode} />} />
+                <Area type="monotone" dataKey="wait" stroke="#3b82f6" strokeWidth={4} fill="url(#colorWait)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Key Highlights */}
+        <div className={`border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          } lg:col-span-1`}>
           <div className="flex justify-between items-center mb-6">
             <h3 className={`text-lg font-black ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Key Highlights</h3>
             <Zap size={16} className="text-amber-500" />
@@ -301,6 +451,122 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* New Section: Engagement & Products */}
+      <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
+        <h3 className={`text-xl font-black mb-8 flex items-center gap-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+          <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg shadow-purple-500/20">
+            <Megaphone size={20} />
+          </div>
+          Engagement & <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Inventory</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          {/* Ads Card - Vibrant Purple Gradient */}
+          <div className={`p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/20 ${isDarkMode ? 'bg-gradient-to-br from-[#1a1d26] to-[#121418] border border-slate-800' : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'}`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-purple-500/20 transition-all duration-700"></div>
+
+            <div className="flex justify-between items-start mb-8 relative z-10">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300">
+                <Megaphone size={24} />
+              </div>
+              <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'border-purple-500/30 text-purple-400 bg-purple-500/10' : 'border-purple-200 text-purple-600 bg-purple-50'}`}>
+                Camapaigns
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 relative z-10">
+              <h4 className={`text-5xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                {data.mix?.ads?.activeAds || 0}
+              </h4>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-purple-500 transition-colors">Active Now</p>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10">
+              <div className="flex justify-between items-center group/stat cursor-default">
+                <span className={`text-xs font-bold transition-colors ${isDarkMode ? 'text-slate-500 group-hover/stat:text-slate-300' : 'text-slate-400 group-hover/stat:text-slate-600'}`}>Lifetime Reach</span>
+                <span className={`text-sm font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{data.mix?.ads?.totalAds || 0}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stories Card - Vibrant Pink Gradient */}
+          <div className={`p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 ${isDarkMode ? 'bg-gradient-to-br from-[#1a1d26] to-[#121418] border border-slate-800' : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'}`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-pink-500/20 transition-all duration-700"></div>
+
+            <div className="flex justify-between items-start mb-8 relative z-10">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/30 group-hover:scale-110 transition-transform duration-300">
+                <Heart size={24} />
+              </div>
+              <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${isDarkMode ? 'bg-pink-500/10 text-pink-400' : 'bg-pink-50 text-pink-600'}`}>
+                <div className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
+                Live
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6 relative z-10">
+              <div className="group/stat">
+                <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{(parseInt(data.mix?.stories?.totalLikes || '0') / 1000).toFixed(1)}k</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1 group-hover/stat:text-pink-500 transition-colors">Net Likes</p>
+              </div>
+              <div className="group/stat">
+                <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{data.mix?.stories?.totalComments || 0}</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1 group-hover/stat:text-pink-500 transition-colors">Comments</p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10">
+              <div className="flex justify-between items-center group/stat cursor-default">
+                <span className={`text-xs font-bold transition-colors ${isDarkMode ? 'text-slate-500 group-hover/stat:text-slate-300' : 'text-slate-400 group-hover/stat:text-slate-600'}`}>Total Stories</span>
+                <span className={`text-sm font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{data.mix?.stories?.totalStories || 0}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Products Card - Vibrant Emerald Gradient */}
+          <div className={`p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/20 ${isDarkMode ? 'bg-gradient-to-br from-[#1a1d26] to-[#121418] border border-slate-800' : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'}`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+
+            <div className="flex items-center gap-4 mb-8 relative z-10">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
+                <ShoppingBag size={24} />
+              </div>
+              <div>
+                <h4 className={`text-lg font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Top Movers</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Highest Volume</p>
+              </div>
+            </div>
+
+            <div className="space-y-5 relative z-10">
+              {(data.mix?.products || []).map((p, i) => (
+                <div key={i} className="flex items-center gap-4 group/item">
+                  <div className="relative">
+                    <img src={p.image_url || 'https://via.placeholder.com/40'} alt={p.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-slate-100 dark:ring-slate-800 group-hover/item:ring-emerald-500 group-hover/item:scale-110 transition-all duration-300 shadow-sm" />
+                    <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[8px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-[#1a1d26]">#{i + 1}</div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <p className={`text-xs font-black truncate ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{p.name}</p>
+                      <span className="text-xs font-black text-emerald-500">{p.value}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-1000 ease-out group-hover/item:w-full" style={{ width: `${Math.min(100, (parseInt(p.value) / 100) * 100)}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(!data.mix?.products || data.mix.products.length === 0) && (
+                <div className="flex flex-col items-center justify-center py-4 text-center">
+                  <Smartphone className="text-slate-300 dark:text-slate-700 mb-2" size={32} />
+                  <p className="text-xs text-slate-400 font-bold">No sales data available</p>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

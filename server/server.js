@@ -19,11 +19,32 @@ const productRoutes = require('./router/product');
 const categoryRoutes = require('./router/category');
 const bundlesRoutes = require('./router/bundles');
 const uploadRoutes = require('./utils/upload');
+const analyticsRoutes = require('./router/analytics');
+const systemRoutes = require('./router/system');
+const feedbackRoutes = require('./router/feedback');
+const userRoutes = require('./router/user');
+const settingRoutes = require('./router/setting');
+const storiesRoutes = require('./router/stories');
+const adsRoutes = require('./router/ads');
+const chatRoutes = require('./router/chat');
+const giftsRoutes = require('./router/gifts');
 
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    contentSecurityPolicy: false, // Temporarily disable CSP if it conflicts heavily with local dev tools (Vite/React often need blobs/unsafe-eval)
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    referrerPolicy: { policy: "no-referrer-when-downgrade" } // More compatible for local dev
 }));
-app.use(cors());
+
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? [process.env.FRONTEND_URL, 'http://localhost:5173'] // Add your production domains here
+        : '*', // Allow all in development
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,21 +57,15 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/bundles', bundlesRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/analytics', require('./router/analytics'));
-app.use('/api/system', require('./router/system'));
-app.use('/api/feedback', require('./router/feedback'));
-app.use('/api/users', require('./router/user'));
-app.use('/api/settings', require('./router/setting'));
-app.use('/api/stories', require('./router/stories'));
-app.use('/api/ads', require('./router/ads'));
-app.use('/api/chat', require('./router/chat'));
-
-
-
-
-
-
-
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/settings', settingRoutes);
+app.use('/api/stories', storiesRoutes);
+app.use('/api/ads', adsRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/gifts', giftsRoutes);
 
 
 

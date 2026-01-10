@@ -1,11 +1,20 @@
 const express = require('express');
+
+const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', [
+    check('email', 'Please include a valid email').isEmail().normalizeEmail(),
+    check('password', 'Password is required').exists()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     const { email, password } = req.body;
     try {
         const text = `

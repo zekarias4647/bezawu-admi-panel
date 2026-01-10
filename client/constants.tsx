@@ -28,6 +28,7 @@ export const NAVIGATION = [
   { name: 'Live Orders', icon: <ShoppingBag size={20} />, id: 'orders' },
   { name: 'Inventory', icon: <Package size={20} />, id: 'inventory' },
   { name: 'Special Packages', icon: <Gift size={20} />, id: 'packages' },
+  { name: 'User Gifts', icon: <Gift size={20} />, id: 'gifts' },
   { name: 'App Stories', icon: <Film size={20} />, id: 'stories' },
   { name: 'App Ads', icon: <ImageIcon size={20} />, id: 'ads' },
   { name: 'Performance', icon: <BarChart3 size={20} />, id: 'analytics' },

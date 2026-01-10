@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { check, validationResult, param } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
@@ -24,7 +26,16 @@ router.get('/ads-get', authMiddleware, async (req, res) => {
 });
 
 // Create new ad
-router.post('/ads-post', authMiddleware, async (req, res) => {
+router.post('/ads-post', [
+    authMiddleware,
+    check('type', 'Type is required').not().isEmpty(),
+    check('media_url', 'Media URL is required').not().isEmpty(),
+    check('duration_hours', 'Duration must be a positive number').isInt({ min: 1 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { type, media_url, description, duration_hours } = req.body;
 
@@ -64,7 +75,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 // Toggle active status
-router.patch('/:id/toggle', authMiddleware, async (req, res) => {
+router.patch('/:id/toggle', [
+    authMiddleware,
+    param('id', 'Invalid Ad ID').isInt()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { id } = req.params;
         const result = await query(

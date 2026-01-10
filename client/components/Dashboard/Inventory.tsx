@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Package, AlertTriangle, CheckCircle2, X, TrendingUp, BarChart2, Info, Edit3, Save, Sparkles } from 'lucide-react';
+import { Search, Filter, Plus, Package, AlertTriangle, CheckCircle2, X, TrendingUp, BarChart2, Info, Edit3, Save, Sparkles, Scale, Box, Trash2 } from 'lucide-react';
 
 interface InventoryProps {
   isDarkMode: boolean;
@@ -130,7 +130,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-sm font-bold ${item.stock < 10 ? 'text-red-500' : isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                      {item.stock} units
+                      {item.stock} {item.unit || 'units'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -153,6 +153,24 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
                     >
                       Inspect
                     </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this product?')) {
+                          const token = localStorage.getItem('token');
+                          fetch(`http://localhost:5000/api/products/${item.id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                          })
+                            .then(res => {
+                              if (res.ok) fetchItems();
+                            })
+                            .catch(err => console.error(err));
+                        }
+                      }}
+                      className="ml-4 text-xs font-bold uppercase tracking-wider text-rose-500 hover:text-rose-600 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -160,17 +178,34 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
           </table>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
 export const AdjustStockModal: React.FC<{ product: any, onClose: () => void, isDarkMode: boolean }> = ({ product, onClose, isDarkMode }) => {
   const [newStock, setNewStock] = useState(product.stock.toString());
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(`Updating stock for ${product.id} to ${newStock}`);
-    onClose();
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ stock: parseFloat(newStock) })
+      });
+      if (res.ok) {
+        onClose();
+        window.location.reload(); // Simple reload to refresh data
+      } else {
+        console.error('Failed to update stock');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -261,9 +296,17 @@ export const ProductDetailModal: React.FC<{ product: any, onClose: () => void, i
                     {product.status}
                   </div>
                 </div>
-                <h3 className={`text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  {product.stock} <span className="text-lg text-slate-500 font-medium">Units</span>
-                </h3>
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className={`text-5xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {product.stock}
+                  </h3>
+                  <div className="flex flex-col">
+                    <span className="text-lg text-emerald-500 font-black uppercase tracking-widest leading-none">{product.unit || 'Units'}</span>
+                    <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                      {['kg', 'g', 'lb', 'oz'].includes(product.unit?.toLowerCase()) ? 'Measured by Weight' : 'Counted Asset'}
+                    </span>
+                  </div>
+                </div>
               </div>
               <div className="space-y-4">
                 <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
@@ -286,7 +329,10 @@ export const ProductDetailModal: React.FC<{ product: any, onClose: () => void, i
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Market Price</p>
-                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{product.price} ETB</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {product.price} ETB
+                    <span className="text-[10px] text-slate-500 font-medium ml-1">/ {product.unit || 'Unit'}</span>
+                  </p>
                 </div>
               </div>
               <div className={`p-6 rounded-[1.5rem] border flex items-center gap-4 ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
@@ -298,10 +344,23 @@ export const ProductDetailModal: React.FC<{ product: any, onClose: () => void, i
                   <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{product.category}</p>
                 </div>
               </div>
+              <div className={`p-6 rounded-[1.5rem] border flex items-center gap-4 ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+                <div className="bg-blue-500/10 p-3 rounded-xl">
+                  {['kg', 'g', 'lb', 'oz'].includes(product.unit?.toLowerCase()) ? <Scale size={20} className="text-blue-500" /> : <Box size={20} className="text-blue-500" />}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pricing Type</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {['kg', 'g', 'lb', 'oz'].includes(product.unit?.toLowerCase()) ? 'Price per Weight' : 'Price per Unit'}
+                  </p>
+                </div>
+              </div>
               <div className={`p-4 rounded-[1.5rem] border border-dashed flex items-center gap-3 transition-colors ${isDarkMode ? 'bg-slate-800/20 border-slate-800 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-400'
                 }`}>
                 <Info size={18} />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Auto-reorder threshold: 15 units</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest">
+                  {['kg', 'g', 'lb', 'oz'].includes(product.unit?.toLowerCase()) ? 'Stock measured via calibrated digital scales.' : 'Asset tracked via individual SKU counts.'}
+                </span>
               </div>
             </div>
           </div>

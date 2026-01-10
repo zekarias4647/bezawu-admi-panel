@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
@@ -29,7 +31,14 @@ router.get('/categories-get', authMiddleware, async (req, res) => {
 });
 
 // Create a new category
-router.post('/categories-post', authMiddleware, async (req, res) => {
+router.post('/categories-post', [
+    authMiddleware,
+    check('name', 'Category name is required').not().isEmpty().trim().escape()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     const { name } = req.body;
     const branch_id = req.user.branchId;
     const supermarket_id = req.user.supermarketId;

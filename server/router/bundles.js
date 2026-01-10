@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { check, validationResult, param } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
@@ -74,7 +76,17 @@ router.get('/bundles-get', authMiddleware, async (req, res) => {
 });
 
 // Create a new bundle
-router.post('/bundles-post', authMiddleware, async (req, res) => {
+router.post('/bundles-post', [
+    authMiddleware,
+    check('name', 'Name is required').not().isEmpty().trim().escape(),
+    check('price', 'Price must be a number').isFloat({ min: 0 }),
+    check('discount', 'Discount must be between 0 and 100').optional().isFloat({ min: 0, max: 100 }),
+    check('items', 'Items must be an array').isArray()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { name, description, price, discount, image_url, items } = req.body;
         const { branchId } = req.user;
@@ -138,7 +150,14 @@ router.post('/bundles-post', authMiddleware, async (req, res) => {
 });
 
 // Update bundle active status
-router.patch('/bundles/:id/toggle', authMiddleware, async (req, res) => {
+router.patch('/bundles/:id/toggle', [
+    authMiddleware,
+    param('id', 'Invalid Bundle ID').not().isEmpty()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const { id } = req.params;
         const { branchId, supermarketId } = req.user;

@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { check, validationResult, param } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
@@ -90,7 +92,16 @@ router.get('/orders-get', authMiddleware, async (req, res) => {
 });
 
 // Update order status
-router.patch('/:id/status', authMiddleware, async (req, res) => {
+router.patch('/:id/status', [
+    authMiddleware,
+    param('id', 'Invalid Order ID').notEmpty().isString(),
+    check('status', 'Status is required').not().isEmpty(),
+    check('status', 'Invalid status value').isIn(['PENDING', 'ACCEPTED', 'PREPARING', 'READY', 'READY_FOR_PICKUP', 'ARRIVED', 'COMPLETED', 'CANCELLED', 'VERIFIED', 'GIVEN'])
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     const { id } = req.params;
     const { status } = req.body;
     const { branchId, supermarketId } = req.user;
