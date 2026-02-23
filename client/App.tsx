@@ -81,7 +81,7 @@ const App: React.FC = () => {
                 })
                 .then(userData => {
                     setUser(userData);
-                    const smStatus = userData.supermarketStatus?.toLowerCase();
+                    const smStatus = userData.vendorStatus?.toLowerCase();
                     const bStatus = userData.branchStatus?.toLowerCase();
 
                     if (smStatus !== 'active') {
@@ -110,7 +110,7 @@ const App: React.FC = () => {
         // Simulate a small delay for smooth transition or any final checks
         setTimeout(() => {
             setUser(userData);
-            const smStatus = userData.supermarketStatus?.toLowerCase();
+            const smStatus = userData.vendorStatus?.toLowerCase();
             const bStatus = userData.branchStatus?.toLowerCase();
 
             if (smStatus !== 'active') {
@@ -136,7 +136,7 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#0f1115] text-slate-200' : 'bg-slate-50 text-slate-900'} antialiased selection:bg-green-500/30`}>
+        <div className={`h-screen w-screen overflow-hidden transition-colors duration-300 ${isDarkMode ? 'bg-[#0f1115] text-slate-200' : 'bg-slate-50 text-slate-900'} antialiased selection:bg-green-500/30`}>
             {isLoading && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60">
                     <div className="h-12 w-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
@@ -200,8 +200,8 @@ const App: React.FC = () => {
 
             {currentStep === AuthStep.OMNI_LOCKDOWN && (
                 <OmniLockdown
-                    supermarketName={user?.supermarketName}
-                    branchCount={user?.supermarketBranchCount}
+                    vendorName={user?.vendorName}
+                    branchCount={user?.vendorBranchCount}
                     onLogout={handleLogout}
                 />
             )}

@@ -56,17 +56,17 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
             <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#f1f5f9] rounded-full blur-[140px] animate-blob-heavy opacity-40" style={{ animationDelay: '-3s' }}></div>
 
             <div className="max-w-md w-full relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center p-8 rounded-[2.5rem] mb-8 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
-                        <Fingerprint size={56} strokeWidth={1.5} />
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center p-5 rounded-[1.5rem] mb-4 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
+                        <Fingerprint size={36} strokeWidth={1.5} />
                     </div>
-                    <h2 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 leading-none text-center">Pass-Overwrite.</h2>
+                    <h2 className="text-3xl font-black tracking-tighter mb-4 text-slate-900 leading-none text-center">Pass-Overwrite.</h2>
                     <p className="text-slate-400 text-[10px] font-black max-w-[300px] mx-auto leading-relaxed tracking-[0.2em] uppercase italic opacity-60 text-center">
                         Establish a high-entropy access credential for this terminal.
                     </p>
                 </div>
 
-                <div className="bg-white/60 glass-surface border border-white/80 rounded-[3.5rem] p-12 shadow-2xl liquid-card-shadow transition-all">
+                <div className="bg-white/60 glass-surface border border-white/80 rounded-[2rem] p-8 shadow-2xl liquid-card-shadow transition-all">
                     {error && (
                         <div className="mb-4 text-center bg-red-50 text-red-500 text-xs font-bold py-3 rounded-xl border border-red-100">
                             {error}
@@ -81,21 +81,21 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full bg-[#f8fafc] border-2 border-[#f1f5f9] focus:border-[#10b981]/20 focus:bg-white rounded-[1.8rem] px-8 py-6 focus:outline-none transition-all text-sm font-black text-slate-900 placeholder:text-slate-300 pr-20"
+                                    className="w-full bg-[#f8fafc] border-2 border-[#f1f5f9] focus:border-[#10b981]/20 focus:bg-white rounded-full px-6 py-4 focus:outline-none transition-all text-sm font-black text-slate-900 placeholder:text-slate-300 pr-14"
                                     placeholder="Set high-entropy key"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-900 transition-colors"
+                                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-900 transition-colors"
                                 >
-                                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="p-7 rounded-[2.2rem] bg-white/50 border border-slate-100/80 space-y-4 shadow-inner">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 px-1 text-center">Entropy Validation</p>
+                        <div className="p-5 rounded-2xl bg-white/50 border border-slate-100/80 space-y-4 shadow-inner">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 px-1 text-center">Entropy Validation</p>
                             <div className="space-y-3">
                                 {rules.map((rule, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group">
@@ -116,9 +116,9 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
                         <button
                             type="submit"
                             disabled={!rules.every(r => r.met)}
-                            className="w-full bg-slate-900 hover:bg-black disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white font-black py-6 rounded-[2.2rem] transition-all transform active:scale-[0.98] shadow-2xl text-xs uppercase tracking-[0.5em] flex items-center justify-center gap-4"
+                            className="w-full bg-slate-900 hover:bg-black disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed text-white font-black py-4 rounded-full transition-all transform active:scale-[0.98] shadow-2xl text-xs uppercase tracking-[0.5em] flex items-center justify-center gap-3"
                         >
-                            <Lock size={22} className="group-hover:rotate-12 transition-transform" />
+                            <Lock size={18} className="group-hover:rotate-12 transition-transform" />
                             Commit Overwrite
                         </button>
                     </form>

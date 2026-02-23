@@ -149,20 +149,20 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {[
                     { label: 'Active Runners', value: runners.filter(r => r.status === 'ACTIVE').length, icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                     { label: 'Total Workforce', value: runners.length, icon: UserCheck, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
                     { label: 'Branch Coverage', value: '100%', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                 ].map((stat, i) => (
-                    <div key={i} className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-slate-200 shadow-sm'}`}>
+                    <div key={i} className={`p-4 rounded-xl border ${isDarkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-slate-200 shadow-sm'}`}>
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</p>
-                                <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</p>
+                                <p className={`text-xl font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
                             </div>
-                            <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-                                <stat.icon size={20} />
+                            <div className={`p-2.5 rounded-lg ${stat.bg} ${stat.color}`}>
+                                <stat.icon size={16} />
                             </div>
                         </div>
                     </div>
@@ -175,11 +175,11 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className={`border-b ${isDarkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Personnel</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Last Active</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                                <th className="px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">Personnel</th>
+                                <th className="px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">Contact</th>
+                                <th className="px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+                                <th className="px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">Last Active</th>
+                                <th className="px-5 py-3 text-right text-[9px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody className={`divide-y ${isDarkMode ? 'divide-slate-700' : 'divide-slate-100'}`}>
@@ -192,62 +192,62 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
                             ) : (
                                 filteredRunners.map((runner) => (
                                     <tr key={runner.id} className={`group transition-colors ${isDarkMode ? 'hover:bg-slate-700/30' : 'hover:bg-slate-50'}`}>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-2xl overflow-hidden shadow-sm border border-slate-200/20">
+                                        <td className="px-5 py-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-xl overflow-hidden shadow-sm border border-slate-200/20">
                                                     <img src={getImageUrl(runner.pro_image)} alt={runner.full_name} className="h-full w-full object-cover" />
                                                 </div>
                                                 <div>
-                                                    <p className={`font-black text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{runner.full_name}</p>
-                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">ID: {runner.id}</p>
+                                                    <p className={`font-black text-xs ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{runner.full_name}</p>
+                                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">ID: {runner.id}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                                                    <Phone size={12} className="text-indigo-500" />
+                                        <td className="px-5 py-3">
+                                            <div className="space-y-0.5">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                                                    <Phone size={10} className="text-indigo-500" />
                                                     {runner.phone}
                                                 </div>
                                                 {runner.email && (
-                                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                                                        <Mail size={12} className="text-indigo-500" />
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                                                        <Mail size={10} className="text-indigo-500" />
                                                         {runner.email}
                                                     </div>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${runner.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-500/10 text-slate-500'
+                                        <td className="px-5 py-3">
+                                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${runner.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-500/10 text-slate-500'
                                                 }`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full ${runner.status === 'ACTIVE' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}`} />
                                                 {runner.status}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                                                <Clock size={14} />
+                                        <td className="px-5 py-3">
+                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                                                <Clock size={12} />
                                                 {new Date(runner.last_active).toLocaleString()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
+                                        <td className="px-5 py-3 text-right">
+                                            <div className="flex items-center justify-end gap-1.5">
                                                 <button
                                                     onClick={() => handleToggleStatus(runner.id, runner.status)}
-                                                    className={`p-2 rounded-lg transition-all ${runner.status === 'ACTIVE'
+                                                    className={`p-1.5 rounded-lg transition-all ${runner.status === 'ACTIVE'
                                                         ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white'
                                                         : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white'
                                                         }`}
                                                     title={runner.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                                                 >
-                                                    <Power size={16} />
+                                                    <Power size={14} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(runner.id)}
-                                                    className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                                                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
                                                     title="Remove"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         </td>

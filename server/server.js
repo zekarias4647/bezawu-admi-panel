@@ -29,6 +29,8 @@ const adsRoutes = require('./router/ads');
 const chatRoutes = require('./router/chat');
 const giftsRoutes = require('./router/gifts');
 const runnerRoutes = require('./router/runners');
+const businessTypeRoutes = require('./router/business_types');
+const reportRoutes = require('./router/report');
 
 app.use(helmet({
     contentSecurityPolicy: false, // Temporarily disable CSP if it conflicts heavily with local dev tools (Vite/React often need blobs/unsafe-eval)
@@ -69,6 +71,8 @@ app.use('/api/ads', adsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/gifts', giftsRoutes);
 app.use('/api/runners', runnerRoutes);
+app.use('/api/business-types', businessTypeRoutes);
+app.use('/api/reports', reportRoutes);
 
 
 

@@ -8,25 +8,25 @@ const authMiddleware = require('../middleware/auth');
 // Get all categories (filtered by user's supermarket/branch)
 router.get('/categories-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
-        let text = 'SELECT * FROM categories WHERE 1=1';
+        let text = 'SELECT id, name, vendor_id, branch_id, parent_id FROM categories WHERE 1=1';
         const params = [];
 
         // If Super Admin, show everything
         if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
             // No filters
         } else if (branchId) {
-            // Branch Admin: sees branch-specific, supermarket-global, and system-global
-            text += ' AND (branch_id = $1 OR supermarket_id = $2 OR (branch_id IS NULL AND supermarket_id IS NULL))';
-            params.push(branchId, supermarketId);
-        } else if (supermarketId) {
-            // Supermarket Admin: sees all categories in their supermarket + global
-            text += ' AND (supermarket_id = $1 OR (branch_id IS NULL AND supermarket_id IS NULL))';
-            params.push(supermarketId);
+            // Branch Admin: sees branch-specific, vendor-global, and system-global
+            text += ' AND (branch_id = $1 OR vendor_id = $2 OR (branch_id IS NULL AND vendor_id IS NULL))';
+            params.push(branchId, vendorId);
+        } else if (vendorId) {
+            // Vendor Admin: sees all categories in their vendor + global
+            text += ' AND (vendor_id = $1 OR (branch_id IS NULL AND vendor_id IS NULL))';
+            params.push(vendorId);
         } else {
             // Global/Other: only see truly global categories
-            text += ' AND (branch_id IS NULL AND supermarket_id IS NULL)';
+            text += ' AND (branch_id IS NULL AND vendor_id IS NULL)';
         }
 
         text += ' ORDER BY name ASC';
@@ -47,9 +47,9 @@ router.post('/categories-post', [
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-    const { name } = req.body;
+    const { name, parent_id } = req.body;
     const branch_id = req.user.branchId;
-    const supermarket_id = req.user.supermarketId;
+    const vendor_id = req.user.vendorId;
 
     if (!name) {
         return res.status(400).json({ message: 'Category name is required' });
@@ -57,11 +57,11 @@ router.post('/categories-post', [
 
     try {
         const text = `
-            INSERT INTO categories (name, supermarket_id, branch_id)
-            VALUES ($1, $2, $3)
+            INSERT INTO categories (name, vendor_id, branch_id, parent_id)
+            VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
-        const values = [name, supermarket_id, branch_id];
+        const values = [name, vendor_id, branch_id, parent_id || null];
         const result = await query(text, values);
         res.status(201).json(result.rows[0]);
     } catch (err) {

@@ -5,19 +5,21 @@ const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
 
-// Get all bundles for the logged-in manager's branch or supermarket
+// Get all bundles for the logged-in manager's branch or vendor
 router.get('/bundles-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         let text = `
-            SELECT 
+            SELECT
                 b.id,
                 b.name,
                 b.description,
                 b.price,
                 b.discount,
+                (b.price - (b.price * (COALESCE(b.discount, 0) / 100))) as discount_price,
                 b.image_url,
+                b.bundle_addons,
                 b.is_active,
                 b.created_at,
                 b.branch_id,
@@ -28,7 +30,8 @@ router.get('/bundles-get', authMiddleware, async (req, res) => {
                             'product_id', bi.product_id,
                             'product_name', p.name,
                             'quantity', bi.quantity,
-                            'price', p.price
+                            'price', p.price,
+                            'selected_addons', bi.selected_addons
                         )
                     ) FILTER(WHERE bi.id IS NOT NULL),
                     '[]'
@@ -44,14 +47,14 @@ router.get('/bundles-get', authMiddleware, async (req, res) => {
         if (branchId) {
             text += ` AND b.branch_id = $${params.length + 1}`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND br.supermarket_id = $${params.length + 1}`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND br.vendor_id = $${params.length + 1}`;
+            params.push(vendorId);
         } else {
             return res.json([]);
         }
 
-        text += ` GROUP BY b.id, b.name, b.description, b.price, b.discount, b.image_url, b.is_active, b.created_at, b.branch_id ORDER BY b.created_at DESC`;
+        text += ` GROUP BY b.id, b.name, b.description, b.price, b.discount, b.image_url, b.bundle_addons, b.is_active, b.created_at, b.branch_id ORDER BY b.created_at DESC`;
 
         const result = await query(text, params);
 
@@ -61,7 +64,9 @@ router.get('/bundles-get', authMiddleware, async (req, res) => {
             description: row.description,
             price: parseFloat(row.price),
             discount: parseFloat(row.discount || 0),
+            discount_price: parseFloat(row.discount_price),
             image_url: row.image_url,
+            bundle_addons: row.bundle_addons,
             is_active: row.is_active,
             created_at: row.created_at,
             branch_id: row.branch_id,
@@ -88,17 +93,19 @@ router.post('/bundles-post', [
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const { name, description, price, discount, image_url, items } = req.body;
-        const { branchId } = req.user;
+        const { name, description, price, discount, image_url, items, bundle_addons } = req.body;
+        const { branchId, vendorId } = req.user;
 
         if (!branchId) {
             return res.status(400).json({ message: 'Branch association required' });
         }
 
-        // Calculate final price after discount
-        const basePrice = parseFloat(price) || 0;
-        const discountPercent = parseFloat(discount) || 0;
-        const finalPrice = basePrice * (1 - (discountPercent / 100));
+        // Calculate discount price
+        const parsedPrice = parseFloat(price) || 0;
+        const parsedDiscount = parseFloat(discount) || 0;
+        const discountPrice = parsedPrice - (parsedPrice * (parsedDiscount / 100));
+
+        const finalBundleAddons = bundle_addons ? JSON.stringify(bundle_addons) : '[]';
 
         // Start transaction
         await query('BEGIN');
@@ -106,10 +113,10 @@ router.post('/bundles-post', [
         try {
             // Insert bundle with calculated final price
             const bundleResult = await query(
-                `INSERT INTO bundles (name, description, price, discount, image_url, branch_id) 
-                 VALUES ($1, $2, $3, $4, $5, $6) 
+                `INSERT INTO bundles (name, description, price, discount, image_url, branch_id, bundle_addons)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)
                  RETURNING *`,
-                [name, description, finalPrice, discountPercent, image_url, branchId]
+                [name, description, parsedPrice, parsedDiscount, image_url, branchId, finalBundleAddons]
             );
 
             const bundle = bundleResult.rows[0];
@@ -118,9 +125,9 @@ router.post('/bundles-post', [
             if (items && Array.isArray(items) && items.length > 0) {
                 for (const item of items) {
                     await query(
-                        `INSERT INTO bundle_items (bundle_id, product_id, quantity) 
-                         VALUES ($1, $2, $3)`,
-                        [bundle.id, item.product_id, item.quantity]
+                        `INSERT INTO bundle_items (bundle_id, product_id, quantity, selected_addons) 
+                         VALUES ($1, $2, $3, $4)`,
+                        [bundle.id, item.product_id, item.quantity, JSON.stringify(item.selected_addons || [])]
                     );
                 }
             }
@@ -160,7 +167,7 @@ router.patch('/bundles/:id/toggle', [
     }
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Authorization check
         let authQuery = 'SELECT b.id FROM bundles b LEFT JOIN branches br ON b.branch_id = br.id WHERE b.id = $1';
@@ -169,9 +176,9 @@ router.patch('/bundles/:id/toggle', [
         if (branchId) {
             authQuery += ' AND b.branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND br.supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND br.vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }
@@ -201,7 +208,7 @@ router.patch('/bundles/:id/toggle', [
 router.delete('/bundles/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Authorization check
         let authQuery = 'SELECT b.id FROM bundles b LEFT JOIN branches br ON b.branch_id = br.id WHERE b.id = $1';
@@ -210,9 +217,9 @@ router.delete('/bundles/:id', authMiddleware, async (req, res) => {
         if (branchId) {
             authQuery += ' AND b.branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND br.supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND br.vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }

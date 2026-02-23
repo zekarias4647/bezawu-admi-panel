@@ -5,11 +5,11 @@ import { Orbit, CloudOff, Radio, Database, ShieldCheck, Cpu, Binary } from 'luci
 interface OmniLockdownProps {
   onRestore?: () => void;
   onLogout?: () => void;
-  supermarketName?: string;
+  vendorName?: string;
   branchCount?: number;
 }
 
-const OmniLockdown: React.FC<OmniLockdownProps> = ({ onRestore, onLogout, supermarketName, branchCount }) => {
+const OmniLockdown: React.FC<OmniLockdownProps> = ({ onRestore, onLogout, vendorName, branchCount }) => {
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 overflow-hidden transition-all duration-1000 bg-[#02040a] selection:bg-cyan-500/30">
 
@@ -60,7 +60,7 @@ const OmniLockdown: React.FC<OmniLockdownProps> = ({ onRestore, onLogout, superm
 
         {/* Status Text Area */}
         <div className="space-y-6">
-          <h1 className="text-9xl font-black tracking-tighter leading-none italic text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-800 uppercase">{supermarketName || 'BEZAW'}</h1>
+          <h1 className="text-9xl font-black tracking-tighter leading-none italic text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-800 uppercase">{vendorName || 'BEZAW'}</h1>
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-4">
               <div className="h-px w-20 bg-gradient-to-r from-transparent to-cyan-500/40" />
@@ -69,7 +69,7 @@ const OmniLockdown: React.FC<OmniLockdownProps> = ({ onRestore, onLogout, superm
               </p>
               <div className="h-px w-20 bg-gradient-to-l from-transparent to-cyan-500/40" />
             </div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">{supermarketName?.toUpperCase()} NETWORK STATUS: LOCKDOWN</p>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">{vendorName?.toUpperCase()} NETWORK STATUS: LOCKDOWN</p>
           </div>
         </div>
 

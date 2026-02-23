@@ -8,7 +8,7 @@ const authMiddleware = require('../middleware/auth');
 // Get all stories
 router.get('/stories-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let text = `
             SELECT 
@@ -25,9 +25,9 @@ router.get('/stories-get', authMiddleware, async (req, res) => {
         } else if (branchId) {
             text += ` AND s.branch_id = $${params.length + 1}`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND s.supermarket_id = $${params.length + 1}`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND s.vendor_id = $${params.length + 1}`;
+            params.push(vendorId);
         } else {
             // If no context, return empty (standard security practice in this app)
             return res.json([]);
@@ -48,7 +48,7 @@ router.get('/stories-get', authMiddleware, async (req, res) => {
 router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let text = `
             SELECT 
@@ -66,9 +66,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
         } else if (branchId) {
             text += ` AND s.branch_id = $2`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND s.supermarket_id = $2`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND s.vendor_id = $2`;
+            params.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }
@@ -96,19 +96,19 @@ router.post('/stories-post', [
     }
     try {
         const { title, video_url, link, description } = req.body;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         if (!title || !video_url) {
             return res.status(400).json({ message: 'Title and Video URL are required' });
         }
 
         const text = `
-            INSERT INTO stories (title, video_url, link, description, branch_id, supermarket_id)
+            INSERT INTO stories (title, video_url, link, description, branch_id, vendor_id)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
         `;
 
-        const result = await query(text, [title, video_url, link, description, branchId, supermarketId]);
+        const result = await query(text, [title, video_url, link, description, branchId, vendorId]);
 
         res.status(201).json({
             message: 'Story created successfully',
@@ -131,7 +131,7 @@ router.patch('/:id/toggle', [
     }
     try {
         const { id } = req.params;
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let authQuery = 'SELECT id FROM stories WHERE id = $1';
         const authParams = [id];
@@ -141,9 +141,9 @@ router.patch('/:id/toggle', [
         } else if (branchId) {
             authQuery += ' AND branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }
@@ -172,7 +172,7 @@ router.patch('/:id/toggle', [
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let authQuery = 'SELECT id FROM stories WHERE id = $1';
         const authParams = [id];
@@ -182,9 +182,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         } else if (branchId) {
             authQuery += ' AND branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }

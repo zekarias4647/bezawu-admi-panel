@@ -16,18 +16,18 @@ const formatDuration = (seconds) => {
 
 router.get('/dashboard-stats', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
-        // Base where clause for filtering by branch/supermarket
+        // Base where clause for filtering by branch/vendor
         let filterClause = '1=1';
         const params = [];
 
         if (branchId) {
             filterClause = 'o.branch_id = $1';
             params.push(branchId);
-        } else if (supermarketId) {
-            filterClause = 'b.supermarket_id = $1';
-            params.push(supermarketId);
+        } else if (vendorId) {
+            filterClause = 'b.vendor_id = $1';
+            params.push(vendorId);
         }
 
         // 1. KPI Stats
@@ -48,6 +48,26 @@ router.get('/dashboard-stats', authMiddleware, async (req, res) => {
         `;
         const kpiResult = await query(kpiQuery, params);
         const kpis = kpiResult.rows[0];
+
+        // 1.1 Total Products Count
+        let productFilter = '1=1';
+        const productParams = [];
+        if (branchId) {
+            productFilter = 'p.branch_id = $1';
+            productParams.push(branchId);
+        } else if (vendorId) {
+            productFilter = 'b.vendor_id = $1';
+            productParams.push(vendorId);
+        }
+
+        const productCountQuery = `
+            SELECT COUNT(*) as "totalProducts"
+            FROM products p
+            LEFT JOIN branches b ON p.branch_id = b.id
+            WHERE ${productFilter}
+        `;
+        const productCountResult = await query(productCountQuery, productParams);
+        const totalProducts = productCountResult.rows[0]?.totalProducts || 0;
 
         // 2 Monthly Data (last 12 months)
         const monthlyQuery = `
@@ -142,9 +162,9 @@ router.get('/dashboard-stats', authMiddleware, async (req, res) => {
         if (branchId) {
             storyFilter = 's.branch_id = $1';
             storyParams.push(branchId);
-        } else if (supermarketId) {
-            storyFilter = 's.supermarket_id = $1';
-            storyParams.push(supermarketId);
+        } else if (vendorId) {
+            storyFilter = 's.vendor_id = $1';
+            storyParams.push(vendorId);
         }
 
         const storiesQuery = `
@@ -182,7 +202,8 @@ router.get('/dashboard-stats', authMiddleware, async (req, res) => {
                 revenue: { value: parseFloat(kpis.totalRevenue).toLocaleString(), trend: '+14.2%', up: true },
                 rating: { value: parseFloat(kpis.avgRating).toFixed(1), trend: '+0.3', up: true },
                 wait: { value: formatDuration(parseFloat(kpis.avgHandoverTime)), trend: '-45s', up: true },
-                orders: { value: kpis.totalOrders, trend: '+12%', up: true }
+                orders: { value: kpis.totalOrders, trend: '+12%', up: true },
+                products: { value: totalProducts, trend: 'Catalog Size', up: true }
             },
             hourlyData: monthlyResult.rows, // Using monthly data but keeping key 'hourlyData' for frontend compatibility
             sentimentData: sentiments.length > 0 ? sentiments : [
@@ -206,16 +227,16 @@ router.get('/dashboard-stats', authMiddleware, async (req, res) => {
 
 router.get('/prediction', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
         let filterClause = '1=1';
         const params = [];
 
         if (branchId) {
             filterClause = 'o.branch_id = $1';
             params.push(branchId);
-        } else if (supermarketId) {
-            filterClause = 'b.supermarket_id = $1';
-            params.push(supermarketId);
+        } else if (vendorId) {
+            filterClause = 'b.vendor_id = $1';
+            params.push(vendorId);
         }
 
         // 1. Fetch Monthly Data specifically for AI context

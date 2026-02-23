@@ -12,8 +12,9 @@ import {
   Users as UsersIcon,
   Gift,
   Film,
-  Image as ImageIcon,
-  UserCheck
+  ImageIcon,
+  UserCheck,
+  FileText
 } from 'lucide-react';
 import { OrderStatus } from './types';
 
@@ -31,10 +32,11 @@ export const NAVIGATION = [
   { name: 'Special Packages', icon: <Gift size={20} />, id: 'packages' },
   { name: 'User Gifts', icon: <Gift size={20} />, id: 'gifts' },
   { name: 'App Stories', icon: <Film size={20} />, id: 'stories' },
-  { name: 'App Ads', icon: <ImageIcon size={20} />, id: 'ads' },
+  // { name: 'App Ads', icon: <ImageIcon size={20} />, id: 'ads' },
   { name: 'Performance', icon: <BarChart3 size={20} />, id: 'analytics' },
   { name: 'Feedback', icon: <MessageSquare size={20} />, id: 'feedback' },
   { name: 'Runners', icon: <UserCheck size={20} />, id: 'runners' },
+  { name: 'Reports', icon: <FileText size={20} />, id: 'reports' },
   { name: 'Users', icon: <UsersIcon size={20} />, id: 'users' },
   { name: 'Settings', icon: <Settings size={20} />, id: 'settings' },
 ];

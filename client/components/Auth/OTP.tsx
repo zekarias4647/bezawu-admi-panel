@@ -79,17 +79,17 @@ const OTP: React.FC<OTPProps> = ({ email, onSuccess, onBack }) => {
                     Abort Procedure
                 </button>
 
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center p-8 rounded-[2.5rem] mb-8 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
-                        <ShieldCheck size={56} strokeWidth={1.5} />
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center p-5 rounded-[1.5rem] mb-4 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
+                        <ShieldCheck size={36} strokeWidth={1.5} />
                     </div>
-                    <h2 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 leading-none">Identity.</h2>
+                    <h2 className="text-3xl font-black tracking-tighter mb-4 text-slate-900 leading-none">Identity.</h2>
                     <p className="text-slate-400 text-[10px] font-black max-w-[280px] mx-auto leading-relaxed tracking-[0.2em] uppercase italic opacity-60">
                         Verify session via the 6-digit cryptographic sequence.
                     </p>
                 </div>
 
-                <div className="bg-white/60 glass-surface border border-white/80 rounded-[3.5rem] p-12 shadow-2xl liquid-card-shadow transition-all">
+                <div className="bg-white/60 glass-surface border border-white/80 rounded-[2rem] p-8 shadow-2xl liquid-card-shadow transition-all">
                     {error && (
                         <div className="mb-8 text-center bg-red-50 text-red-500 text-xs font-bold py-3 rounded-xl border border-red-100">
                             {error}
@@ -105,12 +105,12 @@ const OTP: React.FC<OTPProps> = ({ email, onSuccess, onBack }) => {
                                     value={data}
                                     onChange={(e) => handleChange(e.target, index)}
                                     onKeyDown={(e) => handleKeyDown(e, index)}
-                                    className="w-full h-24 border-2 border-[#f1f5f9] bg-[#f8fafc] rounded-2xl text-center text-4xl font-black transition-all text-slate-900 focus:bg-white focus:border-[#10b981] focus:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.15)] focus:outline-none"
+                                    className="w-full h-14 border-2 border-[#f1f5f9] bg-[#f8fafc] rounded-xl text-center text-2xl font-black transition-all text-slate-900 focus:bg-white focus:border-[#10b981] focus:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.15)] focus:outline-none"
                                     autoFocus={index === 0}
                                 />
                                 {!data && (
                                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                                        <div className="w-[3px] h-10 bg-[#10b981]/20 rounded-full animate-pulse"></div>
+                                        <div className="w-[3px] h-6 bg-[#10b981]/20 rounded-full animate-pulse"></div>
                                     </div>
                                 )}
                             </div>
@@ -119,9 +119,9 @@ const OTP: React.FC<OTPProps> = ({ email, onSuccess, onBack }) => {
 
                     <button
                         type="button"
-                        className="w-full flex items-center justify-center gap-4 bg-[#f8fafc] hover:bg-[#f1f5f9] border border-[#f1f5f9] text-slate-500 font-black py-6 rounded-2xl transition-all text-[10px] uppercase tracking-[0.4em] group"
+                        className="w-full flex items-center justify-center gap-2 bg-[#f8fafc] hover:bg-[#f1f5f9] border border-[#f1f5f9] text-slate-500 font-black py-4 rounded-xl transition-all text-[9px] uppercase tracking-[0.4em] group"
                     >
-                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-1000" />
+                        <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-1000" />
                         Recycle Sequence (0:45)
                     </button>
                 </div>

@@ -23,13 +23,16 @@ router.post('/login', [
                 b.name as branch_name,
                 b.is_busy,
                 b.status as branch_status,
-                s.id as supermarket_id,
-                s.name as supermarket_name,
-                s.status as supermarket_status,
-                (SELECT COUNT(*) FROM branches WHERE supermarket_id = s.id) as branch_count
+                v.id as vendor_id,
+                v.name as vendor_name,
+                v.status as vendor_status,
+                v.business_type,
+                b.opening_hours,
+                b.closing_hours,
+                (SELECT COUNT(*) FROM branches WHERE vendor_id = v.id) as branch_count
             FROM managers m
             LEFT JOIN branches b ON m.branch_id = b.id
-            LEFT JOIN supermarkets s ON b.supermarket_id = s.id
+            LEFT JOIN vendors v ON b.vendor_id = v.id
             WHERE m.email = $1
         `;
         const result = await query(text, [email]);
@@ -51,7 +54,8 @@ router.post('/login', [
                 email: manager.email,
                 role: manager.role,
                 branchId: manager.branch_id,
-                supermarketId: manager.supermarket_id
+                vendorId: manager.vendor_id,
+                businessType: manager.business_type
             },
             process.env.JWT_SECRET || 'your_jwt_secret',
             { expiresIn: '4h' }
@@ -68,10 +72,13 @@ router.post('/login', [
                 branchName: manager.branch_name || 'Individual Branch',
                 isBusy: manager.is_busy || false,
                 branchStatus: manager.branch_status || 'active',
-                supermarketId: manager.supermarket_id,
-                supermarketName: manager.supermarket_name || 'Bezaw Supermarket',
-                supermarketStatus: manager.supermarket_status || 'active',
-                supermarketBranchCount: parseInt(manager.branch_count) || 0
+                vendorId: manager.vendor_id,
+                vendorName: manager.vendor_name || 'Bezaw Vendor',
+                vendorStatus: manager.vendor_status || 'active',
+                businessType: manager.business_type,
+                openingHours: manager.opening_hours,
+                closingHours: manager.closing_hours,
+                vendorBranchCount: parseInt(manager.branch_count) || 0
             }
         });
     } catch (err) {

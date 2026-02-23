@@ -43,11 +43,11 @@ router.patch('/toggle-busy', authMiddleware, async (req, res) => {
 
         if (isBusy) {
             await query(
-                'INSERT INTO audit_logs (admin_id, branch_id, supermarket_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
+                'INSERT INTO audit_logs (admin_id, branch_id, vendor_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
                 [
                     req.user.id,
                     req.user.branchId,
-                    req.user.supermarketId,
+                    req.user.vendorId,
                     'BRANCH_BUSY_ON',
                     'WARNING'
                 ]
@@ -57,6 +57,39 @@ router.patch('/toggle-busy', authMiddleware, async (req, res) => {
         res.json({ message: `Branch status updated to ${isBusy ? 'Busy' : 'Available'}`, isBusy });
     } catch (err) {
         console.error('[Settings API] Toggle Busy Error:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Update Branch Opening/Closing Hours
+router.patch('/update-hours', authMiddleware, async (req, res) => {
+    try {
+        const { branchId } = req.user;
+        const { openingHours, closingHours } = req.body;
+
+        if (!branchId) {
+            return res.status(403).json({ message: 'Only branch managers can update hours' });
+        }
+
+        await query(
+            'UPDATE branches SET opening_hours = $1, closing_hours = $2 WHERE id = $3',
+            [openingHours, closingHours, branchId]
+        );
+
+        await query(
+            'INSERT INTO audit_logs (admin_id, branch_id, vendor_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
+            [
+                req.user.id,
+                req.user.branchId,
+                req.user.vendorId,
+                'BRANCH_HOURS_UPDATE',
+                'INFO'
+            ]
+        );
+
+        res.json({ message: 'Branch hours updated successfully', openingHours, closingHours });
+    } catch (err) {
+        console.error('[Settings API] Update Hours Error:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

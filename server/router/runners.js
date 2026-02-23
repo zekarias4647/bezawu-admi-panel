@@ -4,19 +4,19 @@ const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
 const { check, validationResult } = require('express-validator');
 
-// Get all runners for a branch or supermarket
+// Get all runners for a branch or vendor
 router.get('/runners-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
         let text = 'SELECT * FROM runners WHERE 1=1';
         const params = [];
 
         if (branchId) {
             text += ' AND branch_id = $1';
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ' AND supermarket_id = $1';
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ' AND vendor_id = $1';
+            params.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized access' });
         }
@@ -42,15 +42,15 @@ router.post('/runners-post', [
     }
 
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
         const { full_name, phone, email, pro_image, id } = req.body;
 
         const text = `
-            INSERT INTO runners (id, branch_id, supermarket_id, full_name, phone, email, pro_image)
+            INSERT INTO runners (id, branch_id, vendor_id, full_name, phone, email, pro_image)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `;
-        const params = [id || undefined, branchId, supermarketId, full_name, phone, email, pro_image];
+        const params = [id || undefined, branchId, vendorId, full_name, phone, email, pro_image];
 
         const result = await query(text, params);
         res.status(201).json(result.rows[0]);
@@ -65,7 +65,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Verify ownership/access
         const checkText = 'SELECT * FROM runners WHERE id = $1';
@@ -79,7 +79,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
         if (branchId && runner.branch_id !== branchId) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        if (supermarketId && runner.supermarket_id !== supermarketId) {
+        if (vendorId && runner.vendor_id !== vendorId) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
@@ -97,7 +97,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Verify access before delete
         const checkText = 'SELECT * FROM runners WHERE id = $1';
@@ -111,7 +111,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         if (branchId && runner.branch_id !== branchId) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        if (supermarketId && runner.supermarket_id !== supermarketId) {
+        if (vendorId && runner.vendor_id !== vendorId) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 

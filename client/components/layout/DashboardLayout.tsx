@@ -15,11 +15,12 @@ import AddBundleModal from '../forms/AddBundleModal';
 import Users, { CustomerDetailModal } from '../Dashboard/Users';
 import Settings from '../Dashboard/Settings';
 import FeedbackFeed from '../Dashboard/FeedbackFeed';
+import Reports from '../Dashboard/Reports';
 import GlobalTermination from '../../shutdown/GlobalTermination';
 import BranchOffline from '../Dashboard/BranchOffline';
 
 import OmniLockdown from '../../shutdown/OmniLockdown';
-import Ads from '../Dashboard/Ads';
+// import Ads from '../Dashboard/Ads';
 import AddAdModal from '../forms/AddAdModal';
 import Stories from '../Dashboard/Stories';
 import AddStoryModal from '../forms/AddStoryModal';
@@ -42,6 +43,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   const [isBusy, setIsBusy] = useState(user.isBusy);
   const [arrivedOrder, setArrivedOrder] = useState<Order | null>(null);
   const [inventoryRefreshKey, setInventoryRefreshKey] = useState(0);
+  const [bundlesRefreshKey, setBundlesRefreshKey] = useState(0);
+  const [storiesRefreshKey, setStoriesRefreshKey] = useState(0);
+  const [adsRefreshKey, setAdsRefreshKey] = useState(0);
+  const [runnersRefreshKey, setRunnersRefreshKey] = useState(0);
+  const [giftsRefreshKey, setGiftsRefreshKey] = useState(0);
 
   const handleToggleBusy = async () => {
     const nextBusy = !isBusy;
@@ -65,6 +71,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   };
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const notifiedArrivals = React.useRef<Set<string>>(new Set());
+  const notifiedPending = React.useRef<Set<string>>(new Set());
 
   // Status Management
   const [gridStatus, setGridStatus] = useState<GridStatus>(GridStatus.ONLINE);
@@ -81,32 +88,48 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  const checkArrivals = async () => {
+  const checkGlobalAlerts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://branchapi.ristestate.com/api/orders/arrivals-get', {
+      const { playNotificationSound } = await import('../../services/soundService');
+
+      // 1. Check Arrivals
+      const arrivalRes = await fetch('https://branchapi.ristestate.com/api/orders/arrivals-get', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
-        const arrivals = await response.json();
-        if (arrivals.length > 0) {
-          const newArrival = arrivals.find((a: Order) => !notifiedArrivals.current.has(a.id));
-          if (newArrival) {
-            setArrivedOrder(newArrival);
-            notifiedArrivals.current.add(newArrival.id);
-            // Play sound for arrival
-            const { playNotificationSound } = await import('../../services/soundService');
-            playNotificationSound();
-          }
+      if (arrivalRes.ok) {
+        const arrivals = await arrivalRes.json();
+        const newArrival = arrivals.find((a: Order) => !notifiedArrivals.current.has(a.id));
+        if (newArrival) {
+          setArrivedOrder(newArrival);
+          notifiedArrivals.current.add(newArrival.id);
+          playNotificationSound();
         }
       }
+
+      // 2. Check Pending Orders (Global Sound)
+      const orderRes = await fetch('https://branchapi.ristestate.com/api/orders/orders-get', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (orderRes.ok) {
+        const orders = await orderRes.json();
+        const newPending = orders.find((o: Order) => o.status === OrderStatus.PENDING && !notifiedPending.current.has(o.id));
+        if (newPending) {
+          notifiedPending.current.add(newPending.id);
+          playNotificationSound();
+        }
+
+        // Sync notifiedPending to remove orders that are no longer pending
+        const currentPendingIds = new Set(orders.filter((o: Order) => o.status === OrderStatus.PENDING).map((o: Order) => o.id));
+        notifiedPending.current = new Set([...notifiedPending.current].filter(id => currentPendingIds.has(id)));
+      }
     } catch (err) {
-      console.error('Failed to check arrivals:', err);
+      console.error('Global alert check failed:', err);
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(checkArrivals, 5000);
+    const interval = setInterval(checkGlobalAlerts, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -144,6 +167,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
           onSelectOrder={setSelectedOrder}
           isDarkMode={isDarkMode}
         />;
+      case 'reports':
+        return <Reports isDarkMode={isDarkMode} />;
       case 'feedback':
         return <FeedbackFeed isDarkMode={isDarkMode} />;
       case 'inventory':
@@ -168,23 +193,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
         }
       case 'packages':
         return <SpecialPackages
+          key={bundlesRefreshKey}
           isDarkMode={isDarkMode}
-
           onAddPackage={() => setIsAddBundleOpen(true)}
         />;
       case 'stories':
         return <Stories
+          key={storiesRefreshKey}
           isDarkMode={isDarkMode}
           onAddStory={() => setIsAddStoryOpen(true)}
         />;
-      case 'ads':
-        return <Ads
-          isDarkMode={isDarkMode}
-          onAddAd={() => setIsAddAdOpen(true)}
-        />;
-      case 'gifts': return <Gifts isDarkMode={isDarkMode} />;
+      // case 'ads':
+      //   return <Ads
+      //     key={adsRefreshKey}
+      //     isDarkMode={isDarkMode}
+      //     onAddAd={() => setIsAddAdOpen(true)}
+      //   />;
+      case 'gifts': return <Gifts
+        key={giftsRefreshKey}
+        isDarkMode={isDarkMode}
+        onSuccess={() => setGiftsRefreshKey(prev => prev + 1)}
+      />;
       case 'analytics': return <Analytics isDarkMode={isDarkMode} />;
       case 'runners': return <Runners
+        key={runnersRefreshKey}
         isDarkMode={isDarkMode}
         onAddRunner={() => setIsAddRunnerOpen(true)}
       />;
@@ -222,7 +254,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   }
 
   return (
-    <div className={`flex h-screen w-screen overflow-hidden relative ${isDarkMode ? 'bg-[#0f1115]' : 'bg-slate-50'}`}>
+    <div className={`flex h-full w-full overflow-hidden relative ${isDarkMode ? 'bg-[#0f1115]' : 'bg-slate-50'}`}>
       <Sidebar
         user={user}
         activeTab={activeTab}
@@ -241,7 +273,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
         />
 
         {/* Fill the gap by setting pt-2 instead of py-4/6 */}
-        <main className="flex-1 overflow-y-auto px-6 pt-2 pb-8 lg:px-10 lg:pt-4 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto px-4 pt-1 pb-6 lg:px-6 lg:pt-2 custom-scrollbar">
           {renderContent()}
         </main>
       </div>
@@ -277,13 +309,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
         <AddProductModal
           onClose={() => setIsAddProductOpen(false)}
           onAddCategory={() => setIsAddCategoryOpen(true)}
+          onSuccess={() => setInventoryRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
+          user={user}
         />
       )}
 
       {isAddCategoryOpen && (
         <AddCategoryModal
           onClose={() => setIsAddCategoryOpen(false)}
+          onSuccess={() => setInventoryRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
         />
       )}
@@ -291,6 +326,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
       {isAddBundleOpen && (
         <AddBundleModal
           onClose={() => setIsAddBundleOpen(false)}
+          onSuccess={() => setBundlesRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
         />
       )}
@@ -307,6 +343,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
       {isAddStoryOpen && (
         <AddStoryModal
           onClose={() => setIsAddStoryOpen(false)}
+          onSuccess={() => setStoriesRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
         />
       )}
@@ -315,6 +352,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
         <AddAdModal
           isOpen={isAddAdOpen}
           onClose={() => setIsAddAdOpen(false)}
+          onSuccess={() => setAdsRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
         />
       )}
@@ -322,13 +360,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
       {isAddRunnerOpen && (
         <AddRunnerModal
           onClose={() => setIsAddRunnerOpen(false)}
-          onSuccess={() => {
-            // The Runners component polls or has local refresh logic if needed, 
-            // but usually we refresh list on tab select or via a ref if we want to be instant.
-            // For now, closing and reopening will trigger fetch if we add a key or just hope for the best.
-            // Actually, usually we'd pass a refresh function.
-            window.location.reload(); // Simple way for now, or just let it be.
-          }}
+          onSuccess={() => setRunnersRefreshKey(prev => prev + 1)}
           isDarkMode={isDarkMode}
         />
       )}

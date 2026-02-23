@@ -56,16 +56,16 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                 </button>
 
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center p-8 rounded-[2.5rem] mb-8 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
-                        <Database size={56} strokeWidth={1.5} />
+                    <div className="inline-flex items-center justify-center p-5 rounded-[1.5rem] mb-4 bg-emerald-50 text-[#059669] animate-liquid-slow shadow-xl shadow-emerald-500/5 border border-emerald-100/50">
+                        <Database size={36} strokeWidth={1.5} />
                     </div>
-                    <h2 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 leading-none">Recovery.</h2>
+                    <h2 className="text-3xl font-black tracking-tighter mb-4 text-slate-900 leading-none">Recovery.</h2>
                     <p className="text-slate-400 text-[10px] font-black max-w-[320px] mx-auto leading-relaxed tracking-[0.2em] uppercase italic opacity-60 text-center">
                         Identify your terminal via email to initiate the reset sequence.
                     </p>
                 </div>
 
-                <div className="bg-white/60 glass-surface border border-white/80 rounded-[3.5rem] p-12 shadow-2xl liquid-card-shadow transition-all">
+                <div className="bg-white/60 glass-surface border border-white/80 rounded-[2rem] p-8 shadow-2xl liquid-card-shadow transition-all">
                     {error && (
                         <div className="mb-4 text-red-500 text-xs font-bold text-center bg-red-50 p-3 rounded-xl border border-red-100">
                             {error}
@@ -80,26 +80,26 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full bg-[#f8fafc] border-2 border-[#f1f5f9] focus:border-[#10b981]/20 focus:bg-white rounded-[1.8rem] px-8 py-6 focus:outline-none transition-all text-sm font-black text-slate-900 placeholder:text-slate-300"
+                                    className="w-full bg-[#f8fafc] border-2 border-[#f1f5f9] focus:border-[#10b981]/20 focus:bg-white rounded-full px-6 py-4 focus:outline-none transition-all text-sm font-black text-slate-900 placeholder:text-slate-300"
                                     placeholder="abebe@bezaw.com"
                                 />
-                                <Mail size={20} className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 transition-colors group-focus-within:text-[#10b981]" />
+                                <Mail size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 transition-colors group-focus-within:text-[#10b981]" />
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            className="group relative w-full bg-slate-900 hover:bg-black text-white font-black py-6 rounded-[2.2rem] overflow-hidden transition-all transform active:scale-[0.98] shadow-2xl text-xs uppercase tracking-[0.5em] flex items-center justify-center gap-4"
+                            className="group relative w-full bg-slate-900 hover:bg-black text-white font-black py-4 rounded-full overflow-hidden transition-all transform active:scale-[0.98] shadow-2xl text-xs uppercase tracking-[0.5em] flex items-center justify-center gap-3"
                         >
-                            <Send size={22} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             Transmit Key
                         </button>
                     </form>
                 </div>
 
                 <div className="mt-14 flex justify-center">
-                    <div className="flex items-center gap-4 px-8 py-4 rounded-full glass-surface shadow-md">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bezaw Security Ledger 4.2.0</span>
+                    <div className="flex items-center gap-4 px-6 py-3 rounded-full glass-surface shadow-md">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bezaw Security Ledger 4.2.0</span>
                     </div>
                 </div>
             </div>

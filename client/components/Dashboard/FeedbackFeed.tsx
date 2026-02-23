@@ -49,10 +49,7 @@ export const FeedbackFeed: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) 
           <h1 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             Branch <span className="text-emerald-600">Feedback</span>
           </h1>
-          <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-            <MessageSquare size={14} className="text-emerald-500" />
-            Live Customer Sentiment & Review Stream
-          </p>
+
         </div>
         <button
           onClick={() => setShowSummary(true)}
@@ -144,50 +141,50 @@ export const FeedbackFeed: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) 
       {/* Summary Modal */}
       {
         showSummary && (
-          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-6 bg-black/40 backdrop-blur-xl animate-in fade-in duration-300">
-            <div className={`max-w-2xl w-full rounded-[3rem] overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-500 ${isDarkMode ? 'bg-[#121418] border-slate-700' : 'bg-white border-slate-100'
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className={`max-w-xl w-full rounded-3xl overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-700' : 'bg-white border-slate-100'
               }`}>
-              <div className="p-12 relative overflow-hidden">
+              <div className="p-8 relative overflow-hidden">
                 {/* Deco */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
-                <button onClick={() => setShowSummary(false)} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors">
-                  <X size={24} />
+                <button onClick={() => setShowSummary(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
+                  <X size={20} />
                 </button>
 
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="bg-emerald-600 p-4 rounded-2xl text-white shadow-xl shadow-emerald-600/30">
-                    <ClipboardList size={32} />
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="bg-emerald-600 p-3 rounded-2xl text-white shadow-xl shadow-emerald-600/30">
+                    <ClipboardList size={28} />
                   </div>
                   <div>
-                    <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Branch Summary</h2>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Operational Overview</p>
+                    <h2 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Branch Summary</h2>
+                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Operational Overview</p>
                   </div>
                 </div>
 
-                <div className="space-y-8 relative z-10">
+                <div className="space-y-6 relative z-10">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1 bg-slate-800/10" />
-                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.3em]">EXECUTIVE HIGHLIGHTS</span>
+                      <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-[0.3em]">EXECUTIVE HIGHLIGHTS</span>
                       <div className="h-px flex-1 bg-slate-800/10" />
                     </div>
-                    <ul className="space-y-5">
-                      <li className="flex gap-4">
-                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <p className={`text-sm font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <ul className="space-y-4">
+                      <li className="flex gap-3">
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        <p className={`text-xs font-bold leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                           Customer satisfaction trended upward by 14% due to <span className="text-emerald-500">Fast Picking</span> KPIs.
                         </p>
                       </li>
-                      <li className="flex gap-4">
-                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500" />
-                        <p className={`text-sm font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <li className="flex gap-3">
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                        <p className={`text-xs font-bold leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                           Expected peak surge at <span className="text-amber-500">1:30 PM</span>. Deploy 2 additional pickers from Stockroom to mitigate delays.
                         </p>
                       </li>
-                      <li className="flex gap-4">
-                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500" />
-                        <p className={`text-sm font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <li className="flex gap-3">
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                        <p className={`text-xs font-bold leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
                           Review quality protocols for produce in CMC branch based on localized feedback.
                         </p>
                       </li>
@@ -195,10 +192,10 @@ export const FeedbackFeed: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) 
                   </div>
                 </div>
 
-                <div className="mt-12">
+                <div className="mt-8">
                   <button
                     onClick={() => setShowSummary(false)}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-600/20"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-600/20 active:scale-[0.98]"
                   >
                     Acknowledge Report
                   </button>

@@ -8,7 +8,7 @@ const authMiddleware = require('../middleware/auth');
 // Get all ads
 router.get('/ads-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let text = `
             SELECT *, 
@@ -26,9 +26,9 @@ router.get('/ads-get', authMiddleware, async (req, res) => {
         } else if (branchId) {
             text += ` AND branch_id = $${params.length + 1}`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND supermarket_id = $${params.length + 1}`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND vendor_id = $${params.length + 1}`;
+            params.push(vendorId);
         } else {
             return res.json([]);
         }
@@ -56,7 +56,7 @@ router.post('/ads-post', [
     }
     try {
         const { type, media_url, description, duration_hours } = req.body;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         if (!type || !media_url || !duration_hours) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -67,12 +67,12 @@ router.post('/ads-post', [
         expiresAt.setHours(expiresAt.getHours() + parseInt(duration_hours));
 
         const text = `
-            INSERT INTO ads (type, media_url, description, duration_hours, expires_at, branch_id, supermarket_id)
+            INSERT INTO ads (type, media_url, description, duration_hours, expires_at, branch_id, vendor_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `;
 
-        const result = await query(text, [type, media_url, description, duration_hours, expiresAt, branchId, supermarketId]);
+        const result = await query(text, [type, media_url, description, duration_hours, expiresAt, branchId, vendorId]);
         res.status(201).json({ message: 'Ad created successfully', ad: result.rows[0] });
 
     } catch (err) {
@@ -85,7 +85,7 @@ router.post('/ads-post', [
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let authQuery = 'SELECT id FROM ads WHERE id = $1';
         const authParams = [id];
@@ -95,9 +95,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         } else if (branchId) {
             authQuery += ' AND branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }
@@ -126,7 +126,7 @@ router.patch('/:id/toggle', [
     }
     try {
         const { id } = req.params;
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
 
         let authQuery = 'SELECT id FROM ads WHERE id = $1';
         const authParams = [id];
@@ -136,9 +136,9 @@ router.patch('/:id/toggle', [
         } else if (branchId) {
             authQuery += ' AND branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }

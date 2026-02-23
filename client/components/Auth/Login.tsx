@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { LogIn, Lock, ShoppingBag, Mail, Heart, ArrowRight, UserCheck, Eye, EyeOff } from 'lucide-react';
-import LogoImage from '../../assets/photo_2026-01-02_16-03-59-removebg-preview.png'
+import LogoImage from '../../assets/Bezaw logo (2).png'
 import HeroImage from '../../assets/ChatGPT Image Dec 27, 2025, 01_14_44 PM.png'
 
 interface LoginProps {
@@ -78,24 +78,24 @@ const Login: React.FC<LoginProps> = ({ onLogin, onForgot }) => {
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 lg:px-16 h-full py-8 md:py-16">
 
         {/* Left Section: Login Card */}
-        <div className="w-full md:w-[460px] flex flex-col items-center">
-          <div className="w-full bg-white rounded-[3.5rem] shadow-[0_60px_120px_-30px_rgba(6,78,59,0.15)] p-10 md:p-14 py-16 animate-in fade-in slide-in-from-left-12 duration-1000 border border-emerald-50/50">
+        <div className="w-full md:w-[380px] flex flex-col items-center">
+          <div className="w-full bg-white rounded-[2.5rem] shadow-[0_60px_120px_-30px_rgba(6,78,59,0.15)] p-8 md:p-10 py-10 animate-in fade-in slide-in-from-left-12 duration-1000 border border-emerald-50/50">
 
             {/* Logo Section */}
-            <div className="flex flex-col items-center mb-12 text-center">
-              <div className="mb-6 relative">
+            <div className="flex flex-col items-center mb-8 text-center">
+              <div className="mb-4 relative">
                 <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
-                <img src={LogoImage} alt="Bezaw Logo" className="w-[180px] h-auto relative z-10 animate-float-soft drop-shadow-2xl" />
+                <img src={LogoImage} alt="Bezaw Logo" className="w-[120px] h-auto relative z-10 animate-float-soft drop-shadow-2xl" />
               </div>
-              <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">Bezaw</h1>
-              <p className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mt-3">
-                Curated with care <Heart size={12} className="text-emerald-500 fill-emerald-500 animate-pulse" />
+              <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">Bezaw</h1>
+              <p className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">
+                Curated with care <Heart size={10} className="text-emerald-500 fill-emerald-500 animate-pulse" />
               </p>
             </div>
 
             {/* Welcome Text */}
-            <div className="text-center mb-10">
-              <h2 className="text-4xl font-black text-slate-800 tracking-tight">Login</h2>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Login</h2>
 
             </div>
 
@@ -106,10 +106,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, onForgot }) => {
                   {error}
                 </div>
               )}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">
-                    <Mail size={18} />
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+                    <Mail size={16} />
                   </div>
                   <input
                     type="email"
@@ -117,13 +117,13 @@ const Login: React.FC<LoginProps> = ({ onLogin, onForgot }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="Enter Email Id"
-                    className="w-full bg-slate-50 border-2 border-slate-50 focus:border-emerald-500/20 focus:bg-white rounded-full pl-16 pr-8 py-5 text-sm font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
+                    className="w-full bg-slate-50 border-2 border-slate-50 focus:border-emerald-500/20 focus:bg-white rounded-full pl-12 pr-6 py-3 text-xs font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
                   />
                 </div>
 
                 <div className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">
-                    <Lock size={18} />
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">
+                    <Lock size={16} />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -131,14 +131,14 @@ const Login: React.FC<LoginProps> = ({ onLogin, onForgot }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="Enter Password"
-                    className="w-full bg-slate-50 border-2 border-slate-50 focus:border-emerald-500/20 focus:bg-white rounded-full pl-16 pr-14 py-5 text-sm font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
+                    className="w-full bg-slate-50 border-2 border-slate-50 focus:border-emerald-500/20 focus:bg-white rounded-full pl-12 pr-12 py-3 text-xs font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors focus:outline-none"
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors focus:outline-none"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
@@ -148,18 +148,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, onForgot }) => {
                 <button
                   type="button"
                   onClick={onForgot}
-                  className="text-[11px] text-slate-400 hover:text-emerald-600 font-black uppercase tracking-widest transition-all"
+                  className="text-[9px] text-slate-400 hover:text-emerald-600 font-black uppercase tracking-widest transition-all"
                 >
                   Forgot Key Sequence?
                 </button>
               </div>
 
-              <div className="pt-8 flex flex-col items-center">
+              <div className="pt-6 flex flex-col items-center">
                 <button
                   type="submit"
-                  className="w-full md:w-[220px] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-full transition-all transform active:scale-95 shadow-[0_20px_40px_-10px_rgba(5,150,105,0.4)] text-sm tracking-[0.2em] uppercase flex items-center justify-center gap-3 group"
+                  className="w-full md:w-[180px] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-full transition-all transform active:scale-95 shadow-[0_20px_40px_-10px_rgba(5,150,105,0.4)] text-[10px] tracking-[0.2em] uppercase flex items-center justify-center gap-2 group"
                 >
-                  {loading ? 'Authenticating...' : 'Login'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  {loading ? 'Authenticating...' : 'Login'} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </form>

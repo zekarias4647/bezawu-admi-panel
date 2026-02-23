@@ -1,13 +1,15 @@
+
 import React, { useState } from 'react';
-import { X, Save, Loader2, ImageIcon, Film, Clock, Type } from 'lucide-react';
+import { X, Save, Loader2, ImageIcon, Film, Clock, Type, Sparkles, Zap } from 'lucide-react';
 
 interface AddAdModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
     isDarkMode: boolean;
 }
 
-const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, isDarkMode }) => {
+const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, onSuccess, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState<'image' | 'video'>('image');
@@ -27,15 +29,17 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, isDarkMode }) 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!mediaFile) {
+            setError('Please select a media file');
+            return;
+        }
+
         setError('');
         setLoading(true);
 
         try {
-            if (!mediaFile) throw new Error('Please select a media file');
-
-            // 1. Upload Media
             const formData = new FormData();
-            formData.append('image', mediaFile); // The upload endpoint expects 'image' field for both images and videos based on previous impl
+            formData.append('image', mediaFile); // Multer field name is 'image'
 
             const token = localStorage.getItem('token');
 
@@ -47,9 +51,8 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, isDarkMode }) 
 
             if (!uploadRes.ok) throw new Error('Failed to upload media');
             const uploadData = await uploadRes.json();
-            const mediaUrl = uploadData.imageUrl; // The endpoint returns { imageUrl: ... } even for relative paths
+            const mediaUrl = uploadData.imageUrl;
 
-            // 2. Create Ad
             const adRes = await fetch('https://branchapi.ristestate.com/api/ads/ads-post', {
                 method: 'POST',
                 headers: {
@@ -66,9 +69,8 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, isDarkMode }) 
 
             if (!adRes.ok) throw new Error('Failed to create ad');
 
-            // Success
-            window.location.reload(); // Simple reload to refresh list
-
+            onSuccess?.();
+            onClose();
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Something went wrong');
@@ -78,153 +80,199 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, isDarkMode }) 
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'}`}>
-                <div className="px-8 pt-8 pb-6 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl border ${isDarkMode ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'}`}>
-                            <ImageIcon className="text-emerald-500" size={24} />
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className={`max-w-xl w-full rounded-3xl overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'} max-h-[90vh] flex flex-col`}>
+
+                {/* Header */}
+                <div className={`relative overflow-hidden shrink-0 ${isDarkMode ? 'bg-gradient-to-br from-[#0f1115] via-[#121418] to-[#1a1d23]' : 'bg-gradient-to-br from-slate-50 via-white to-slate-100'}`}>
+                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 opacity-90 z-10" />
+
+                    <div className="relative px-6 pt-6 pb-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-xl border transition-colors ${isDarkMode ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'}`}>
+                                <ImageIcon className="text-emerald-500" size={24} />
+                            </div>
+                            <div>
+                                <h2 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Promotional Campaign</h2>
+                                <p className="text-[9px] text-slate-400 uppercase font-bold tracking-[0.2em] mt-0.5">Strategic Advertisement & Marketing Protocol</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>New Ad</h2>
-                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-0.5">Promotional Content</p>
-                        </div>
+                        <button onClick={onClose} className={`p-2 rounded-xl transition-all ${isDarkMode ? 'text-slate-500 hover:text-white hover:bg-white/5' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}>
+                            <X size={20} />
+                        </button>
                     </div>
-                    <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-slate-600 hover:text-white' : 'text-slate-400 hover:text-slate-600'}`}>
-                        <X size={24} />
-                    </button>
+
+                    {/* Tabs */}
+                    <div className="px-6 flex gap-6 border-b border-transparent">
+                        <button
+                            onClick={() => { setActiveTab('image'); setMediaFile(null); }}
+                            className={`pb-2.5 text-[9px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === 'image'
+                                ? 'text-emerald-500 border-emerald-500'
+                                : 'text-slate-500 border-transparent hover:text-slate-400'}`}
+                        >
+                            Static Image
+                        </button>
+                        <button
+                            onClick={() => { setActiveTab('video'); setMediaFile(null); }}
+                            className={`pb-2.5 text-[9px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === 'video'
+                                ? 'text-pink-500 border-pink-500'
+                                : 'text-slate-500 border-transparent hover:text-slate-400'}`}
+                        >
+                            Video Motion
+                        </button>
+                    </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="px-8 flex gap-4 border-b border-slate-100 dark:border-slate-800 mb-6">
-                    <button
-                        onClick={() => { setActiveTab('image'); setMediaFile(null); }}
-                        className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${activeTab === 'image'
-                            ? 'text-emerald-500 border-emerald-500'
-                            : 'text-slate-400 border-transparent hover:text-slate-500'}`}
-                    >
-                        Image Ad
-                    </button>
-                    <button
-                        onClick={() => { setActiveTab('video'); setMediaFile(null); }}
-                        className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${activeTab === 'video'
-                            ? 'text-pink-500 border-pink-500'
-                            : 'text-slate-400 border-transparent hover:text-slate-500'}`}
-                    >
-                        Video Ad
-                    </button>
-                </div>
+                {/* Scrollable Content */}
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-5 space-y-5">
 
-                <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
-                    <div className="space-y-4">
+                        {/* Media Asset Card */}
+                        <div className={`p-5 rounded-2xl border relative overflow-hidden transition-all duration-300 ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-orange-400 to-rose-500 opacity-80" />
 
-                        {/* Media Upload */}
-                        <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">
-                                {activeTab === 'image' ? 'Image File' : 'Video File'}
-                            </label>
-                            <div className="relative">
-                                <input
-                                    required
-                                    type="file"
-                                    accept={activeTab === 'image' ? "image/*" : "video/*"}
-                                    className="hidden"
-                                    id="media-upload"
-                                    onChange={handleFileChange}
-                                />
-                                <label
-                                    htmlFor="media-upload"
-                                    className={`w-full flex items-center justify-between px-6 py-8 rounded-xl border border-dashed transition-all cursor-pointer ${isDarkMode ? 'bg-[#0f1115] border-slate-800 hover:border-emerald-500' : 'bg-slate-50 border-slate-200 hover:border-emerald-500'}`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-3 rounded-full ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
-                                            {activeTab === 'image' ? <ImageIcon size={24} className="text-emerald-500" /> : <Film size={24} className="text-pink-500" />}
-                                        </div>
-                                        <div>
-                                            <div className={`text-sm font-bold ${mediaFile ? (isDarkMode ? 'text-white' : 'text-slate-900') : 'text-slate-500'}`}>
-                                                {mediaFile ? mediaFile.name : `Select ${activeTab} file...`}
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="bg-amber-500/10 p-1.5 rounded-lg">
+                                    <Sparkles size={14} className="text-amber-500" />
+                                </div>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Visual Deployment</span>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* File Upload */}
+                                <div className="relative">
+                                    <input
+                                        required
+                                        type="file"
+                                        accept={activeTab === 'image' ? "image/*" : "video/*"}
+                                        className="hidden"
+                                        id="media-upload"
+                                        onChange={handleFileChange}
+                                    />
+                                    <label
+                                        htmlFor="media-upload"
+                                        className={`w-full flex items-center justify-between px-5 py-6 rounded-xl border-2 border-dashed transition-all cursor-pointer ${mediaFile
+                                            ? 'border-emerald-500/40 bg-emerald-500/5'
+                                            : isDarkMode ? 'bg-[#1a1d23] border-slate-700 hover:border-amber-500/50' : 'bg-white border-slate-200 hover:border-amber-400'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${mediaFile ? (activeTab === 'image' ? 'bg-emerald-500' : 'bg-pink-500') : 'bg-slate-500/10 text-slate-400'}`}>
+                                                {activeTab === 'image' ? <ImageIcon size={20} className={mediaFile ? 'text-white' : ''} /> : <Film size={20} className={mediaFile ? 'text-white' : ''} />}
                                             </div>
-                                            <div className="text-xs text-slate-400 mt-0.5">
-                                                {activeTab === 'image' ? 'JPG, PNG, WEBP up to 5MB' : 'MP4, MOV up to 100MB'}
+                                            <div className="flex flex-col">
+                                                <div className={`text-xs font-bold ${mediaFile ? (isDarkMode ? 'text-white' : 'text-slate-900') : 'text-slate-500'}`}>
+                                                    {mediaFile ? mediaFile.name : `Select ${activeTab} file...`}
+                                                </div>
+                                                <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                                                    {activeTab === 'image' ? 'JPG, PNG, WEBP (Maximum Impact)' : 'MP4, MOV (High Velocity)'}
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className={`px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest transition-all ${mediaFile ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                                            {mediaFile ? 'Switch' : 'Browse'}
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {/* Description */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[8px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                                        <Type size={10} className="text-amber-500" /> Campaign Caption
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Exclusive Flash Sale — 50% Off Everything"
+                                            maxLength={50}
+                                            className={`w-full px-4 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium text-xs ${isDarkMode ? 'bg-[#1a1d23] border-slate-700 text-white placeholder:text-slate-600' : 'bg-white border-slate-200 text-slate-900'}`}
+                                            value={description}
+                                            onChange={e => setDescription(e.target.value)}
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-500 font-mono">
+                                            {description.length}/50
+                                        </span>
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase text-slate-500 bg-slate-500/10 px-3 py-1.5 rounded-lg">Browse</span>
-                                </label>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Description */}
-                        <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Short Description</label>
-                            <div className="relative">
-                                <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Summer Sale 50% Off"
-                                    maxLength={50}
-                                    className={`w-full pl-12 pr-4 py-4 rounded-xl border transition-all font-bold text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
-                                    value={description}
-                                    onChange={e => setDescription(e.target.value)}
-                                />
-                            </div>
-                            <div className="text-right text-[10px] text-slate-500 mt-1 font-mono">{description.length}/50</div>
-                        </div>
+                        {/* Lifecycle Card */}
+                        <div className={`p-5 rounded-2xl border relative overflow-hidden transition-all duration-300 ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-400 to-violet-500 opacity-80" />
 
-                        {/* Duration */}
-                        <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Duration</label>
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="bg-blue-500/10 p-1.5 rounded-lg">
+                                    <Clock size={14} className="text-blue-500" />
+                                </div>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Campaign Duration</span>
+                            </div>
+
                             <div className="grid grid-cols-4 gap-3">
                                 {[
-                                    { label: '24 Hours', value: '24' },
-                                    { label: '3 Days', value: '72' },
-                                    { label: '1 Week', value: '168' },
-                                    { label: '30 Days', value: '720' },
+                                    { label: '24h', full: '24 Hours', value: '24' },
+                                    { label: '3d', full: '3 Days', value: '72' },
+                                    { label: '1w', full: '1 Week', value: '168' },
+                                    { label: '1m', full: '1 Month', value: '720' },
                                 ].map((opt) => (
                                     <button
                                         key={opt.value}
                                         type="button"
                                         onClick={() => setDuration(opt.value)}
-                                        className={`py-3 rounded-xl text-xs font-bold border transition-all ${duration === opt.value
-                                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/30'
+                                        className={`group relative py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${duration === opt.value
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30 active:scale-95'
                                             : isDarkMode
-                                                ? 'bg-[#0f1115] border-slate-800 text-slate-400 hover:border-slate-700'
-                                                : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
+                                                ? 'bg-[#1a1d23] border-slate-800 text-slate-500 hover:border-blue-500/50 hover:text-blue-400'
+                                                : 'bg-white border-slate-200 text-slate-500 hover:border-blue-400 hover:text-blue-600'
                                             }`}
                                     >
-                                        {opt.label}
+                                        <span className="text-xs font-bold">{opt.label}</span>
+                                        <span className="text-[6px] font-bold uppercase tracking-tighter opacity-60 group-hover:opacity-100">{opt.full}</span>
+                                        {duration === opt.value && (
+                                            <div className="absolute -top-1 -right-1">
+                                                <Zap size={8} className="fill-white text-white" />
+                                            </div>
+                                        )}
                                     </button>
                                 ))}
                             </div>
                         </div>
 
+                        {error && (
+                            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 animate-in slide-in-from-bottom-2">
+                                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest">{error}</p>
+                            </div>
+                        )}
                     </div>
 
-                    {error && (
-                        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-sm font-bold">
-                            {error}
-                        </div>
-                    )}
-
-                    <div className="flex gap-4 pt-2">
+                    {/* Footer */}
+                    <div className={`px-6 py-4 flex items-center justify-end gap-3 border-t shrink-0 ${isDarkMode ? 'bg-[#121418]/95 border-slate-800' : 'bg-white/95 border-slate-100'}`}>
                         <button
                             type="button"
                             onClick={onClose}
-                            className={`flex-1 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                            className={`px-6 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all active:scale-95 ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                         >
-                            Cancel
+                            Decline
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold rounded-xl text-[9px] transition-all shadow-lg shadow-emerald-600/25 active:scale-[0.97] uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                            {loading ? 'Publishing...' : 'Publish Ad'}
+                            {loading ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                            {loading ? 'Transmitting...' : 'Commit Ad Placement'}
                         </button>
                     </div>
                 </form>
             </div>
+
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.2); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(34, 197, 94, 0.3); }
+            `}</style>
         </div>
     );
 };

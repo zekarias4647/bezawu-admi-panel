@@ -3,9 +3,10 @@ const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
 
+// Get current logged-in user profile
 router.get('/customers-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         let filterClause = '1=1';
         const params = [];
@@ -13,9 +14,9 @@ router.get('/customers-get', authMiddleware, async (req, res) => {
         if (branchId) {
             filterClause = 'o.branch_id = $1';
             params.push(branchId);
-        } else if (supermarketId) {
-            filterClause = 'b.supermarket_id = $1';
-            params.push(supermarketId);
+        } else if (vendorId) {
+            filterClause = 'b.vendor_id = $1';
+            params.push(vendorId);
         }
 
         const customersQuery = `
@@ -81,7 +82,7 @@ router.get('/customers-get', authMiddleware, async (req, res) => {
 router.get('/:id/details', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Security check
         const authCheckText = `
@@ -89,10 +90,10 @@ router.get('/:id/details', authMiddleware, async (req, res) => {
             FROM orders o 
             LEFT JOIN branches b ON o.branch_id = b.id 
             WHERE o.customer_id = $1
-            AND (o.branch_id = $2 OR b.supermarket_id = $2)
+            AND (o.branch_id = $2 OR b.vendor_id = $2)
             LIMIT 1
         `;
-        const authCheck = await query(authCheckText, [id, branchId || supermarketId]);
+        const authCheck = await query(authCheckText, [id, branchId || vendorId]);
         if (authCheck.rows.length === 0) {
             return res.status(403).json({ message: 'No commercial relationship found' });
         }
@@ -108,11 +109,11 @@ router.get('/:id/details', authMiddleware, async (req, res) => {
             FROM orders o
             LEFT JOIN branches b ON o.branch_id = b.id
             WHERE o.customer_id = $1
-            AND (o.branch_id = $2 OR b.supermarket_id = $2)
+            AND (o.branch_id = $2 OR b.vendor_id = $2)
             ORDER BY o.created_at DESC
             LIMIT 20
         `;
-        const historyResult = await query(historyQuery, [id, branchId || supermarketId]);
+        const historyResult = await query(historyQuery, [id, branchId || vendorId]);
 
         // 2. Fetch spend trajectory (last 7 days of activity)
         const trajectoryQuery = `
@@ -122,12 +123,12 @@ router.get('/:id/details', authMiddleware, async (req, res) => {
             FROM orders o
             LEFT JOIN branches b ON o.branch_id = b.id
             WHERE o.customer_id = $1
-            AND (o.branch_id = $2 OR b.supermarket_id = $2)
+            AND (o.branch_id = $2 OR b.vendor_id = $2)
             AND o.created_at >= NOW() - INTERVAL '30 days'
             GROUP BY TO_CHAR(o.created_at, 'Mon DD'), o.created_at::date
             ORDER BY o.created_at::date ASC
         `;
-        const trajectoryResult = await query(trajectoryQuery, [id, branchId || supermarketId]);
+        const trajectoryResult = await query(trajectoryQuery, [id, branchId || vendorId]);
 
         const formattedHistory = historyResult.rows.map(row => ({
             ...row,

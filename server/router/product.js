@@ -7,7 +7,9 @@ const authMiddleware = require('../middleware/auth');
 // Get all products
 router.get('/products-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId, role } = req.user;
+        const { branchId, vendorId, role } = req.user;
+        const { showDeleted } = req.query;
+        const isDeleted = showDeleted === 'true';
 
         let text = `
             SELECT 
@@ -15,7 +17,9 @@ router.get('/products-get', authMiddleware, async (req, res) => {
                 p.name,
                 p.price,
                 p.category_id,
+                p.subcategory_id,
                 c.name as cat_name,
+                sc.name as subcat_name,
                 p.image_url,
                 p.sku,
                 p.description,
@@ -23,22 +27,25 @@ router.get('/products-get', authMiddleware, async (req, res) => {
                 p.unit,
                 p.discount_price,
                 p.branch_id,
-                p.stock_quantity
+                p.stock_quantity,
+                p.specs,
+                p.product_addons,
+                p.is_active
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categories sc ON p.subcategory_id = sc.id
             LEFT JOIN branches b ON p.branch_id::text = b.id::text
-            WHERE 1=1
+            WHERE p.is_deleted = $1
         `;
-
-        const params = [];
+        const params = [isDeleted];
         if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
             // No filters
         } else if (branchId) {
             text += ` AND p.branch_id = $${params.length + 1}`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND b.supermarket_id = $${params.length + 1}`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND b.vendor_id = $${params.length + 1}`;
+            params.push(vendorId);
         } else {
             return res.json([]);
         }
@@ -50,11 +57,17 @@ router.get('/products-get', authMiddleware, async (req, res) => {
             name: row.name,
             category: row.cat_name || (row.category_id ? `Category ${row.category_id}` : 'Uncategorized'),
             category_id: row.category_id,
+            subcategory: row.subcat_name,
+            subcategory_id: row.subcategory_id,
             price: parseFloat(row.price),
             stock: row.stock_quantity || 0,
-            status: (row.stock_quantity || 0) > 10 ? 'In Stock' : (row.stock_quantity || 0) > 0 ? 'Low Stock' : 'Out of Stock',
+            status: row.stock_quantity === -1 ? 'In Stock' : (row.stock_quantity || 0) > 10 ? 'In Stock' : (row.stock_quantity || 0) > 0 ? 'Low Stock' : 'Out of Stock',
             image_url: row.image_url,
-            unit: row.unit
+            is_fasting: row.is_fasting,
+            is_active: row.is_active,
+            unit: row.unit,
+            specs: row.specs || {},
+            product_addons: row.product_addons || []
         }));
 
         res.json(products);
@@ -77,8 +90,8 @@ router.post('/products-post', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, category_id, price, description, sku, image_url, unit, stock, stock_quantity, branch_id: bodyBranchId } = req.body;
-    const { branchId: userBranchId, supermarketId } = req.user;
+    const { name, category_id, subcategory_id, price, description, sku, image_url, unit, stock, stock_quantity, branch_id: bodyBranchId, specs, product_addons } = req.body;
+    const { branchId: userBranchId, vendorId } = req.user;
 
     const targetBranchId = bodyBranchId || userBranchId;
 
@@ -92,33 +105,35 @@ router.post('/products-post', [
             return res.status(403).json({ message: 'Unauthorized: You can only post to your own branch' });
         }
 
-        if (supermarketId) {
-            const check = await query('SELECT id FROM branches WHERE id = $1 AND supermarket_id = $2', [targetBranchId, supermarketId]);
+        if (vendorId) {
+            const check = await query('SELECT id FROM branches WHERE id = $1 AND vendor_id = $2', [targetBranchId, vendorId]);
             if (check.rows.length === 0) {
-                return res.status(403).json({ message: 'Unauthorized: Branch outside your supermarket scope' });
+                return res.status(403).json({ message: 'Unauthorized: Branch outside your vendor scope' });
             }
         }
 
         const text = `
-            INSERT INTO products (name, category_id, price, description, sku, image_url, unit, branch_id, stock_quantity)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO products (name, category_id, subcategory_id, price, description, sku, image_url, unit, branch_id, stock_quantity, specs, product_addons, is_fasting, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             RETURNING *
         `;
 
         // Handle both 'stock' and 'stock_quantity' for compatibility
         const finalStock = stock_quantity !== undefined ? stock_quantity : (stock !== undefined ? stock : 0);
+        const finalSpecs = specs ? (typeof specs === 'string' ? specs : JSON.stringify(specs)) : '{}';
+        const finalAddons = product_addons ? (typeof product_addons === 'string' ? product_addons : JSON.stringify(product_addons)) : '[]';
 
-        const values = [name, category_id, price, description, sku, image_url, unit, targetBranchId, finalStock];
+        const values = [name, category_id, subcategory_id || null, price, description, sku, image_url, unit, targetBranchId, finalStock, finalSpecs, finalAddons, !!req.body.is_fasting, req.body.is_active !== undefined ? req.body.is_active : true];
 
         const result = await query(text, values);
 
         // Audit Log
         await query(
-            'INSERT INTO audit_logs (admin_id, branch_id, supermarket_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
+            'INSERT INTO audit_logs (admin_id, branch_id, vendor_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
             [
                 req.user.id,
                 targetBranchId,
-                supermarketId,
+                vendorId,
                 `PRODUCT_CREATE: ${name} (${result.rows[0].id})`,
                 'INFO'
             ]
@@ -131,13 +146,11 @@ router.post('/products-post', [
     }
 });
 
-module.exports = router;
-
 // Delete product
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         // Authorization check
         let authQuery = 'SELECT p.id FROM products p LEFT JOIN branches b ON p.branch_id = b.id WHERE p.id = $1';
@@ -146,9 +159,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         if (branchId) {
             authQuery += ' AND p.branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND b.supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND b.vendor_id = $2';
+            authParams.push(vendorId);
         } else {
             return res.status(403).json({ message: 'Unauthorized' });
         }
@@ -158,8 +171,8 @@ router.delete('/:id', authMiddleware, async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized: Product not in your scope' });
         }
 
-        await query('DELETE FROM products WHERE id = $1', [id]);
-        res.json({ message: 'Product deleted successfully' });
+        await query('UPDATE products SET is_deleted = true WHERE id = $1', [id]);
+        res.json({ message: 'Product moved to trash' });
     } catch (err) {
         console.error('Error deleting product:', err);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -169,7 +182,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 // Update product (used for stock adjustment)
 router.patch('/:id', [
     authMiddleware,
-    check('stock', 'Stock must be a non-negative number').optional().isFloat({ min: 0 }),
+    check('stock', 'Stock must be a valid number').optional().isFloat({ min: -1 }),
     check('price', 'Price must be a positive number').optional().isFloat({ min: 0 }),
     check('category_id').optional()
 ], async (req, res) => {
@@ -180,7 +193,7 @@ router.patch('/:id', [
 
     try {
         const { id } = req.params;
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
         const updates = req.body;
 
         // Authorization check
@@ -190,9 +203,9 @@ router.patch('/:id', [
         if (branchId) {
             authQuery += ' AND p.branch_id = $2';
             authParams.push(branchId);
-        } else if (supermarketId) {
-            authQuery += ' AND b.supermarket_id = $2';
-            authParams.push(supermarketId);
+        } else if (vendorId) {
+            authQuery += ' AND b.vendor_id = $2';
+            authParams.push(vendorId);
         }
 
         const authResult = await query(authQuery, authParams);
@@ -245,6 +258,24 @@ router.patch('/:id', [
             idx++;
         }
 
+        if (updates.subcategory_id) {
+            updateFields.push(`subcategory_id = $${idx}`);
+            updateValues.push(updates.subcategory_id);
+            idx++;
+        }
+
+        if (updates.is_active !== undefined) {
+            updateFields.push(`is_active = $${idx}`);
+            updateValues.push(updates.is_active);
+            idx++;
+        }
+
+        if (updates.is_fasting !== undefined) {
+            updateFields.push(`is_fasting = $${idx}`);
+            updateValues.push(updates.is_fasting);
+            idx++;
+        }
+
         if (updateFields.length === 0) {
             return res.status(400).json({ message: 'No fields to update' });
         }
@@ -258,11 +289,11 @@ router.patch('/:id', [
         // 1. Log Price Change (Significant Action)
         if (updates.price !== undefined) {
             await query(
-                'INSERT INTO audit_logs (admin_id, branch_id, supermarket_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
+                'INSERT INTO audit_logs (admin_id, branch_id, vendor_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
                 [
                     req.user.id,
                     req.user.branchId,
-                    req.user.supermarketId,
+                    req.user.vendorId,
                     `PRODUCT_PRICE_CHANGE: ${updatedProduct.name} (${id}) -> ${updates.price} ETB`,
                     'WARNING'
                 ]
@@ -272,11 +303,11 @@ router.patch('/:id', [
         // 2. Log Stock Adjustment (Routine Action)
         if (updates.stock !== undefined) {
             await query(
-                'INSERT INTO audit_logs (admin_id, branch_id, supermarket_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
+                'INSERT INTO audit_logs (admin_id, branch_id, vendor_id, action, severity) VALUES ($1, $2, $3, $4, $5)',
                 [
                     req.user.id,
                     req.user.branchId,
-                    req.user.supermarketId,
+                    req.user.vendorId,
                     `PRODUCT_STOCK_ADJUST: ${updatedProduct.name} (${id}) -> ${updates.stock}`,
                     'INFO'
                 ]
@@ -290,3 +321,47 @@ router.patch('/:id', [
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+router.patch('/:id/toggle-status', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await query('UPDATE products SET is_active = NOT is_active WHERE id = $1 RETURNING is_active', [id]);
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+        res.json({ is_active: result.rows[0].is_active });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to toggle product status' });
+    }
+});
+
+router.patch('/:id/restore', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { branchId, vendorId } = req.user;
+
+        // Authorization check
+        let authQuery = 'SELECT p.id FROM products p LEFT JOIN branches b ON p.branch_id = b.id WHERE p.id = $1';
+        const authParams = [id];
+
+        if (branchId) {
+            authQuery += ' AND p.branch_id = $2';
+            authParams.push(branchId);
+        } else if (vendorId) {
+            authQuery += ' AND b.vendor_id = $2';
+            authParams.push(vendorId);
+        }
+
+        const authResult = await query(authQuery, authParams);
+        if (authResult.rows.length === 0) {
+            return res.status(403).json({ message: 'Unauthorized: Product not in your scope' });
+        }
+
+        await query('UPDATE products SET is_deleted = false WHERE id = $1', [id]);
+        res.json({ message: 'Product restored successfully' });
+    } catch (err) {
+        console.error('Error restoring product:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+module.exports = router;

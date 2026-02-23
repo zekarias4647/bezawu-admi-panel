@@ -36,7 +36,10 @@ export interface OrderItem {
   quantity: number;
   image: string;
   picked: boolean;
-  bundleItems?: { name: string; quantity: number }[];
+  bundleItems?: { name: string; quantity: number; selected_addons?: any[] }[];
+  giftItems?: { name: string; quantity: number; selected_addons?: any[] }[];
+  isGift?: boolean;
+  selected_addons?: any;
 }
 
 export interface Order {
@@ -50,6 +53,8 @@ export interface Order {
   etaMinutes?: number;
   arrivedAt?: string;
   handoverTimeSeconds?: number | null;
+  isGift: boolean;
+  paymentProofUrl?: string | null;
 }
 
 export enum AuthStep {
@@ -71,9 +76,10 @@ export interface User {
   branchName: string;
   isBusy: boolean;
   branchStatus: string;
-  supermarketName: string;
-  supermarketStatus: string;
-  supermarketBranchCount: number;
+  vendorName: string;
+  vendorStatus: string;
+  vendorBranchCount: number;
+  businessType: string;
 }
 
 export interface CustomerPurchase {
@@ -123,6 +129,8 @@ export interface BundleItem {
   product_id: string;
   product_name?: string;
   quantity: number;
+  price?: string | number;
+  selected_addons?: any[];
 }
 
 export interface Bundle {
@@ -135,6 +143,7 @@ export interface Bundle {
   created_at: string;
   items?: BundleItem[];
   discount: number;
+  bundle_addons?: any[];
 }
 
 export interface Story {
@@ -173,7 +182,7 @@ export interface Ad {
 export interface Runner {
   id: string;
   branch_id: string;
-  supermarket_id: string;
+  vendor_id: string;
   full_name: string;
   phone: string;
   email: string;

@@ -8,7 +8,7 @@ const authMiddleware = require('../middleware/auth');
 // Get all gifts
 router.get('/gifts-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
         let text = `
             SELECT 
                 g.*,
@@ -20,7 +20,8 @@ router.get('/gifts-get', authMiddleware, async (req, res) => {
                             'name', p.name,
                             'price', p.price,
                             'quantity', gi.quantity,
-                            'image_url', p.image_url
+                            'image_url', p.image_url,
+                            'selected_addons', gi.selected_addons
                         )
                     ) FILTER (WHERE gi.id IS NOT NULL),
                     '[]'
@@ -35,9 +36,9 @@ router.get('/gifts-get', authMiddleware, async (req, res) => {
         if (branchId) {
             text += ` AND g.branch_id = $${params.length + 1}`;
             params.push(branchId);
-        } else if (supermarketId) {
-            text += ` AND g.supermarket_id = $${params.length + 1}`;
-            params.push(supermarketId);
+        } else if (vendorId) {
+            text += ` AND g.vendor_id = $${params.length + 1}`;
+            params.push(vendorId);
         }
 
         text += ' GROUP BY g.id ORDER BY g.created_at DESC';
@@ -61,26 +62,26 @@ router.post('/gifts-post', [
     }
 
     try {
-        const { name, description, price, image_url, items } = req.body;
-        const { branchId, supermarketId } = req.user;
+        const { name, description, price, image_url, items, gift_addons } = req.body;
+        const { branchId, vendorId } = req.user;
 
         // Start transaction
         await query('BEGIN');
 
         const giftText = `
-            INSERT INTO gifts (name, description, price, image_url, branch_id, supermarket_id)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO gifts (name, description, price, image_url, branch_id, vendor_id, gift_addons)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `;
-        const giftValues = [name, description, price, image_url, branchId, supermarketId];
+        const giftValues = [name, description, price, image_url, branchId, vendorId, JSON.stringify(gift_addons || [])];
         const giftResult = await query(giftText, giftValues);
         const giftId = giftResult.rows[0].id;
 
         if (items && Array.isArray(items) && items.length > 0) {
             for (const item of items) {
                 await query(
-                    'INSERT INTO gift_items (gift_id, product_id, quantity) VALUES ($1, $2, $3)',
-                    [giftId, item.product_id, parseInt(item.quantity) || 1]
+                    'INSERT INTO gift_items (gift_id, product_id, quantity, selected_addons) VALUES ($1, $2, $3, $4)',
+                    [giftId, item.product_id, parseInt(item.quantity) || 1, JSON.stringify(item.selected_addons || [])]
                 );
             }
         }

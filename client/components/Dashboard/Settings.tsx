@@ -36,7 +36,9 @@ const Settings: React.FC<SettingsProps> = ({ isDarkMode, isBusy, onToggleBusy, o
     const [config, setConfig] = useState({
         autoAccept: true,
         soundAlerts: localStorage.getItem('soundAlerts') !== 'false',
-        notificationSound: localStorage.getItem('notificationSound') || 'sonar'
+        notificationSound: localStorage.getItem('notificationSound') || 'sonar',
+        openingHours: '06:00',
+        closingHours: '22:00'
     });
 
     useEffect(() => {
@@ -62,6 +64,11 @@ const Settings: React.FC<SettingsProps> = ({ isDarkMode, isBusy, onToggleBusy, o
                 if (response.ok) {
                     const data = await response.json();
                     setEmail(data.email);
+                    setConfig(prev => ({
+                        ...prev,
+                        openingHours: data.openingHours || '06:00',
+                        closingHours: data.closingHours || '22:00'
+                    }));
                 }
             } catch (err) {
                 console.error('Failed to fetch profile:', err);
@@ -101,6 +108,37 @@ const Settings: React.FC<SettingsProps> = ({ isDarkMode, isBusy, onToggleBusy, o
                 setMessage({ type: 'success', text: 'Credentials updated successfully' });
                 setPassword('');
                 setConfirmPassword('');
+            } else {
+                setMessage({ type: 'error', text: data.message || 'Update failed' });
+            }
+        } catch (err) {
+            setMessage({ type: 'error', text: 'Network error occurred' });
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const handleUpdateHours = async () => {
+        setUpdating(true);
+        setMessage({ type: '', text: '' });
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('https://branchapi.ristestate.com/api/settings/update-hours', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    openingHours: config.openingHours,
+                    closingHours: config.closingHours
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setMessage({ type: 'success', text: 'Operational hours updated successfully' });
             } else {
                 setMessage({ type: 'error', text: data.message || 'Update failed' });
             }
@@ -211,6 +249,52 @@ const Settings: React.FC<SettingsProps> = ({ isDarkMode, isBusy, onToggleBusy, o
                         </div>
                     </section>
 
+                    {/* Operational Hours Section */}
+                    <section className={`p-8 rounded-[2.5rem] border transition-all ${isDarkMode ? 'bg-[#121418] border-slate-800 shadow-2xl' : 'bg-white border-slate-200'}`}>
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
+                                <Clock size={24} />
+                            </div>
+                            <h2 className={`text-xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Operational Hours</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opening Time</label>
+                                <input
+                                    type="time"
+                                    disabled={updating}
+                                    className={`w-full px-6 py-4 rounded-2xl border transition-all focus:outline-none ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white focus:border-amber-500' : 'bg-slate-50 border-slate-200 focus:border-amber-500'}`}
+                                    value={config.openingHours}
+                                    onChange={(e) => setConfig({ ...config, openingHours: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Closing Time</label>
+                                <input
+                                    type="time"
+                                    disabled={updating}
+                                    className={`w-full px-6 py-4 rounded-2xl border transition-all focus:outline-none ${isDarkMode ? 'bg-[#0f1115] border-slate-800 text-white focus:border-amber-500' : 'bg-slate-50 border-slate-200 focus:border-amber-500'}`}
+                                    value={config.closingHours}
+                                    onChange={(e) => setConfig({ ...config, closingHours: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={`p-6 rounded-2xl border flex items-center justify-between ${isDarkMode ? 'bg-[#0a0c10] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                            <p className="text-xs text-slate-500 font-bold max-w-[60%]">
+                                These times determine when the branch appears as "Open" to customers on the platform.
+                            </p>
+                            <button
+                                onClick={handleUpdateHours}
+                                disabled={updating}
+                                className="text-xs font-black text-amber-500 uppercase tracking-widest hover:underline disabled:opacity-50"
+                            >
+                                {updating ? 'Syncing...' : 'Update Hours'}
+                            </button>
+                        </div>
+                    </section>
+
                     {/* Operational Parameters Section */}
                     <section className={`p-8 rounded-[2.5rem] border transition-all ${isDarkMode ? 'bg-[#121418] border-slate-800 shadow-2xl' : 'bg-white border-slate-200'}`}>
                         <div className="flex items-center gap-4 mb-8">
@@ -300,27 +384,9 @@ const Settings: React.FC<SettingsProps> = ({ isDarkMode, isBusy, onToggleBusy, o
                         </button>
                     </section>
 
-                    {/* Strategic Shutdown Actions */}
 
 
-                    <section className={`p-8 rounded-[2.5rem] border transition-all ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-                        <h3 className={`text-sm font-black uppercase tracking-widest mb-6 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Terminal Metadata</h3>
-                        <div className="space-y-5">
-                            {[
-                                { label: 'Operating Hours', val: '06:00 — 22:00', icon: <Clock size={16} /> },
-                                { label: 'Staffing Status', val: '12 Operators Active', icon: <Users size={16} /> },
-                                { label: 'Core Integrity', val: '99.9% Up-time', icon: <HardDrive size={16} /> },
-                            ].map((m, i) => (
-                                <div key={i} className="flex items-center gap-4">
-                                    <div className="p-2.5 bg-slate-800/50 rounded-xl text-slate-500">{m.icon}</div>
-                                    <div>
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{m.label}</p>
-                                        <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{m.val}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+
                 </div>
             </div>
         </div>

@@ -216,6 +216,48 @@ const FulfillmentView: React.FC<FulfillmentViewProps> = ({ order, onBack, onUpda
                                             {item.name}
                                         </p>
                                         <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest mt-1">Ref SKU: {item.id}</p>
+
+                                        {item.selected_addons && item.selected_addons.length > 0 && (
+                                            <div className="mt-2 flex flex-wrap gap-1.5">
+                                                {item.selected_addons.map((addon: any, idx: number) => (
+                                                    <span key={idx} className={`text-[8px] font-bold px-2 py-0.5 rounded-full border ${isDarkMode ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-indigo-50 border-indigo-100 text-indigo-600'}`}>
+                                                        {addon.name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {item.bundleItems && item.bundleItems.length > 0 && (
+                                            <div className="mt-2 space-y-1.5 pl-1.5 border-l border-slate-800/30">
+                                                {item.bundleItems.map((bi, biIdx) => (
+                                                    <div key={biIdx} className="flex flex-col gap-0.5">
+                                                        <div className="text-[10px] text-slate-500 font-bold">
+                                                            • {bi.name}
+                                                        </div>
+                                                        {bi.selected_addons && bi.selected_addons.length > 0 && (
+                                                            <div className="flex flex-wrap gap-1 pl-2">
+                                                                {bi.selected_addons.map((a: any, i: number) => <span key={i} className="text-[8px] text-indigo-400/80 font-bold">+ {a.name}</span>)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {item.giftItems && item.giftItems.length > 0 && (
+                                            <div className="mt-2 space-y-1.5 pl-1.5 border-l border-indigo-500/20">
+                                                {item.giftItems.map((gi, giIdx) => (
+                                                    <div key={giIdx} className="flex flex-col gap-0.5">
+                                                        <div className="text-[10px] text-indigo-400/70 font-bold">
+                                                            🎁 {gi.name}
+                                                        </div>
+                                                        {gi.selected_addons && gi.selected_addons.length > 0 && (
+                                                            <div className="flex flex-wrap gap-1 pl-2">
+                                                                {gi.selected_addons.map((a: any, i: number) => <span key={i} className="text-[8px] text-indigo-400/80 font-bold">+ {a.name}</span>)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

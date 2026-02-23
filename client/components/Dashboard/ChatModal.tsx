@@ -81,21 +81,21 @@ const ChatModal: React.FC<ChatModalProps> = ({ order, onClose, isDarkMode }) => 
 
     return (
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`w-full max-w-md h-[600px] flex flex-col rounded-3xl overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'}`}>
+            <div className={`w-full max-w-sm h-[500px] flex flex-col rounded-2xl overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'}`}>
 
                 {/* Header */}
-                <div className={`px-6 py-4 flex items-center justify-between border-b ${isDarkMode ? 'border-slate-800 bg-[#0f1115]' : 'border-slate-100 bg-slate-50'}`}>
+                <div className={`px-4 py-3 flex items-center justify-between border-b ${isDarkMode ? 'border-slate-800 bg-[#0f1115]' : 'border-slate-100 bg-slate-50'}`}>
                     <div className="flex items-center gap-3">
-                        <div className={`p-2.5 rounded-xl ${isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50'}`}>
-                            <MessageSquare className="text-indigo-500" size={20} />
+                        <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50'}`}>
+                            <MessageSquare className="text-indigo-500" size={18} />
                         </div>
                         <div>
                             <h3 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Order Chat</h3>
                             <p className="text-[10px] text-slate-500 font-medium">#{order.id.slice(0, 8)} • {order.customerName}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-500'}`}>
-                        <X size={20} />
+                    <button onClick={onClose} className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-500'}`}>
+                        <X size={18} />
                     </button>
                 </div>
 
@@ -144,14 +144,14 @@ const ChatModal: React.FC<ChatModalProps> = ({ order, onClose, isDarkMode }) => 
                 </div>
 
                 {/* Input Area */}
-                <div className={`p-4 border-t ${isDarkMode ? 'border-slate-800 bg-[#0f1115]' : 'border-slate-100 bg-slate-50'}`}>
+                <div className={`p-3 border-t ${isDarkMode ? 'border-slate-800 bg-[#0f1115]' : 'border-slate-100 bg-slate-50'}`}>
                     <form onSubmit={handleSend} className="relative flex items-center gap-2">
                         <input
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             placeholder="Type a message..."
-                            className={`flex-1 pl-4 pr-12 py-3 rounded-xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${isDarkMode
+                            className={`flex-1 pl-3 pr-10 py-2.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${isDarkMode
                                 ? 'bg-slate-900 border-slate-700 text-white placeholder-slate-600'
                                 : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
                                 }`}
@@ -159,9 +159,9 @@ const ChatModal: React.FC<ChatModalProps> = ({ order, onClose, isDarkMode }) => 
                         <button
                             type="submit"
                             disabled={sending || !newMessage.trim()}
-                            className="absolute right-2 p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
+                            className="absolute right-1.5 p-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-colors"
                         >
-                            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                         </button>
                     </form>
                 </div>

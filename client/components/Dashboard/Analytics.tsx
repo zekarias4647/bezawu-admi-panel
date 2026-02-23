@@ -18,6 +18,7 @@ interface AnalyticsData {
     rating: { value: string; trend: string; up: boolean };
     wait: { value: string; trend: string; up: boolean };
     orders: { value: string; trend: string; up: boolean };
+    products: { value: string; trend: string; up: boolean };
   };
   hourlyData: any[];
   sentimentData: any[];
@@ -133,6 +134,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
     { label: 'Avg Rating', value: data.kpis.rating.value, trend: data.kpis.rating.trend, up: data.kpis.rating.up, icon: <Star size={20} />, color: 'text-amber-500' },
     { label: 'Handover Time', value: data.kpis.wait.value, trend: data.kpis.wait.trend, up: data.kpis.wait.up, icon: <Clock size={20} />, color: 'text-blue-500' },
     { label: 'Total Orders', value: data.kpis.orders.value, trend: data.kpis.orders.trend, up: data.kpis.orders.up, icon: <Package size={20} />, color: 'text-purple-500' },
+    { label: 'Total Products', value: data.kpis.products.value, trend: data.kpis.products.trend, up: data.kpis.products.up, icon: <ShoppingBag size={20} />, color: 'text-indigo-500' },
   ];
 
   // Derive Key Highlights from hourlyData (which is actually monthly data)
@@ -150,11 +152,11 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-4 animate-in fade-in duration-700">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+          <h1 className={`text-xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             System <span className="text-emerald-600">Performance</span>
           </h1>
           <p className={`${isDarkMode ? 'text-slate-500' : 'text-slate-400'} text-sm mt-1 flex items-center gap-2`}>
@@ -174,11 +176,11 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
       </div>
 
       {/* Primary KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {kpiStats.map((stat, i) => (
-          <div key={i} className={`group relative border p-7 rounded-[2rem] transition-all overflow-hidden ${isDarkMode ? 'bg-[#121418] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm'
+          <div key={i} className={`group relative border p-4 rounded-2xl transition-all overflow-hidden ${isDarkMode ? 'bg-[#121418] border-slate-800 hover:border-emerald-500/50' : 'bg-white border-slate-200 shadow-sm'
             }`}>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-4">
               <div className={`p-3 rounded-2xl ${isDarkMode ? 'bg-slate-900' : 'bg-slate-50'} ${stat.color} group-hover:scale-110 transition-transform`}>
                 {stat.icon}
               </div>
@@ -188,23 +190,23 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
                 {stat.trend}
               </div>
             </div>
-            <h3 className={`text-3xl font-black tracking-tighter mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{stat.label}</p>
+            <h3 className={`text-xl font-black tracking-tighter mb-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{stat.value}</h3>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">{stat.label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Main Revenue Chart */}
-        <div className={`border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        <div className={`border p-5 rounded-2xl transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex justify-between items-center mb-6">
             <div>
               <h3 className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Revenue Stream</h3>
               <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-black">Monthly Volume Overview</p>
             </div>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.hourlyData}>
                 <defs>
@@ -224,7 +226,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
         </div>
 
         {/* Feedback Sentiment Analytics */}
-        <div className={`border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        <div className={`border p-5 rounded-2xl transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -237,7 +239,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="h-[200px] relative">
+            <div className="h-[180px] relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={data.sentimentData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -280,8 +282,8 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
       {/* AI Foresight Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className={`col-span-1 md:col-span-3 p-1 rounded-[2.5rem] bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600`}>
-          <div className={`h-full rounded-[2.3rem] p-8 ${isDarkMode ? 'bg-[#121418]' : 'bg-white'}`}>
-            <div className="flex items-center gap-3 mb-8">
+          <div className={`h-full rounded-[2.3rem] p-5 ${isDarkMode ? 'bg-[#121418]' : 'bg-white'}`}>
+            <div className="flex items-center gap-3 mb-6">
               <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-lg shadow-violet-500/30 animate-pulse">
                 <Brain size={24} />
               </div>
@@ -333,7 +335,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
                 <div className={`p-6 rounded-3xl border ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                   <div className="flex justify-between items-start mb-4">
                     <div className="p-2 rounded-xl bg-fuchsia-500/10 text-fuchsia-500">
-                      
+
                     </div>
                   </div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Top Product Forecast</p>
@@ -365,7 +367,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sales Performance (Replaces Rating Velocity) */}
-        <div className={`lg:col-span-2 border p-8 rounded-[2.5rem] transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        <div className={`lg:col-span-2 border p-5 rounded-2xl transition-colors ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -383,7 +385,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
               </div>
             </div>
           </div>
-          <div className="h-[250px] w-full">
+          <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               {/* @ts-ignore */}
               <ComposedChart data={data.hourlyData}>
@@ -433,33 +435,6 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          {/* Ads Card - Vibrant Purple Gradient */}
-          <div className={`p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/20 ${isDarkMode ? 'bg-gradient-to-br from-[#1a1d26] to-[#121418] border border-slate-800' : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'}`}>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-purple-500/20 transition-all duration-700"></div>
-
-            <div className="flex justify-between items-start mb-8 relative z-10">
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300">
-                <Megaphone size={24} />
-              </div>
-              <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'border-purple-500/30 text-purple-400 bg-purple-500/10' : 'border-purple-200 text-purple-600 bg-purple-50'}`}>
-                Camapaigns
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 relative z-10">
-              <h4 className={`text-5xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                {data.mix?.ads?.activeAds || 0}
-              </h4>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-purple-500 transition-colors">Active Now</p>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10">
-              <div className="flex justify-between items-center group/stat cursor-default">
-                <span className={`text-xs font-bold transition-colors ${isDarkMode ? 'text-slate-500 group-hover/stat:text-slate-300' : 'text-slate-400 group-hover/stat:text-slate-600'}`}>Lifetime Reach</span>
-                <span className={`text-sm font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{data.mix?.ads?.totalAds || 0}</span>
-              </div>
-            </div>
-          </div>
 
           {/* Stories Card - Vibrant Pink Gradient */}
           <div className={`p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-pink-500/20 ${isDarkMode ? 'bg-gradient-to-br from-[#1a1d26] to-[#121418] border border-slate-800' : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'}`}>
@@ -515,10 +490,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
             <div className="space-y-5 relative z-10">
               {(data.mix?.products || []).map((p, i) => (
                 <div key={i} className="flex items-center gap-4 group/item">
-                  <div className="relative">
-                    <img src={p.image_url || 'https://via.placeholder.com/40'} alt={p.name} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-slate-100 dark:ring-slate-800 group-hover/item:ring-emerald-500 group-hover/item:scale-110 transition-all duration-300 shadow-sm" />
-                    <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[8px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-[#1a1d26]">#{i + 1}</div>
-                  </div>
+
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-1.5">

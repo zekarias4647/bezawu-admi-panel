@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/auth');
 
 router.get('/feedback-get', authMiddleware, async (req, res) => {
     try {
-        const { branchId, supermarketId } = req.user;
+        const { branchId, vendorId } = req.user;
 
         let filterClause = '1=1';
         const params = [];
@@ -13,9 +13,9 @@ router.get('/feedback-get', authMiddleware, async (req, res) => {
         if (branchId) {
             filterClause = 'o.branch_id = $1';
             params.push(branchId);
-        } else if (supermarketId) {
-            filterClause = 'b.supermarket_id = $1';
-            params.push(supermarketId);
+        } else if (vendorId) {
+            filterClause = 'b.vendor_id = $1';
+            params.push(vendorId);
         }
 
         const feedbackQuery = `

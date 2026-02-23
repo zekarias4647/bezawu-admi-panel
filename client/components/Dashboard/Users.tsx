@@ -62,10 +62,10 @@ const PurchaseDetailModal: React.FC<{ purchase: CustomerPurchase, onClose: () =>
 
   return (
     <div className="fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px] animate-in fade-in duration-300">
-      <div className={`max-w-lg w-full rounded-[2.5rem] overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#1a1d23] border-slate-700' : 'bg-white border-slate-200 shadow-xl'
+      <div className={`max-w-md w-full rounded-3xl overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#1a1d23] border-slate-700' : 'bg-white border-slate-200 shadow-xl'
         }`}>
-        <div className="p-8 border-b border-slate-700/10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="p-6 border-b border-slate-700/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="bg-green-500/10 p-3 rounded-xl">
               <ShoppingBag size={24} className="text-green-500" />
             </div>
@@ -79,7 +79,7 @@ const PurchaseDetailModal: React.FC<{ purchase: CustomerPurchase, onClose: () =>
           </button>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-6 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Timeline</span>
@@ -95,7 +95,7 @@ const PurchaseDetailModal: React.FC<{ purchase: CustomerPurchase, onClose: () =>
             </div>
           </div>
 
-          <div className={`rounded-2xl p-5 border ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+          <div className={`rounded-xl p-4 border ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Manifest</p>
             <div className="space-y-3">
               {loading ? (
@@ -106,12 +106,27 @@ const PurchaseDetailModal: React.FC<{ purchase: CustomerPurchase, onClose: () =>
                 <p className="text-[10px] text-slate-500 italic">No items found in this transaction</p>
               ) : (
                 items.map((item, i) => (
-                  <div key={i} className="flex justify-between items-center text-xs">
-                    <div className="flex items-center gap-3">
-                      <span className="font-black text-green-500">{item.quantity}x</span>
-                      <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{item.name}</span>
+                  <div key={i} className="flex flex-col gap-1.5 border-b border-slate-700/10 last:border-0 pb-2 last:pb-0">
+                    <div className="flex justify-between items-center text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className="font-black text-green-500">{item.quantity}x</span>
+                        <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{item.name}</span>
+                      </div>
+                      <span className="font-mono text-slate-500">{item.price} ETB</span>
                     </div>
-                    <span className="font-mono text-slate-500">{item.price} ETB</span>
+                    {((Array.isArray(item.bundle_addons) && item.bundle_addons.length > 0) || (Array.isArray(item.gift_addons) && item.gift_addons.length > 0) || (Array.isArray(item.selected_addons) && item.selected_addons.length > 0)) && (
+                      <div className="flex flex-wrap gap-1 pl-8">
+                        {Array.isArray(item.bundle_addons) && item.bundle_addons.map((addon: any, idx: number) => (
+                          <span key={`ba-${idx}`} className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold uppercase tracking-tight">+ {addon.name}</span>
+                        ))}
+                        {Array.isArray(item.gift_addons) && item.gift_addons.map((addon: any, idx: number) => (
+                          <span key={`ga-${idx}`} className="text-[8px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-bold uppercase tracking-tight">+ {addon.name}</span>
+                        ))}
+                        {Array.isArray(item.selected_addons) && item.selected_addons.map((addon: any, idx: number) => (
+                          <span key={`sa-${idx}`} className="text-[8px] px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 font-bold uppercase tracking-tight">+ {addon.name}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
@@ -126,7 +141,7 @@ const PurchaseDetailModal: React.FC<{ purchase: CustomerPurchase, onClose: () =>
           </div>
         </div>
 
-        <div className="px-8 pb-8">
+        <div className="px-6 pb-6">
           <button
             onClick={onClose}
             className="w-full bg-[#0f172a] hover:bg-black text-white font-black py-4 rounded-xl transition-all shadow-xl active:scale-95 text-[10px] uppercase tracking-widest"
@@ -170,10 +185,10 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
   return (
     <div className={`fixed inset-0 z-[100000] animate-in fade-in duration-300 flex items-center justify-center p-0 md:p-6 overflow-hidden backdrop-blur-[2px] ${isDarkMode ? 'bg-black/25' : 'bg-slate-900/10'
       }`}>
-      <div className={`w-full max-w-5xl h-full md:h-[90vh] flex flex-col md:rounded-[2.5rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] transition-all border animate-in zoom-in-95 duration-500 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'
+      <div className={`w-full max-w-4xl h-full md:h-[90vh] flex flex-col md:rounded-3xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] transition-all border animate-in zoom-in-95 duration-500 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'
         }`}>
-        <div className={`px-10 py-10 flex items-center justify-between border-b relative z-20 ${isDarkMode ? 'bg-[#121418] border-slate-800/80' : 'bg-white border-slate-100'}`}>
-          <div className="flex items-center gap-6">
+        <div className={`px-8 py-8 flex items-center justify-between border-b relative z-20 ${isDarkMode ? 'bg-[#121418] border-slate-800/80' : 'bg-white border-slate-100'}`}>
+          <div className="flex items-center gap-5">
             <div className={`h-16 w-16 rounded-2xl border transition-all overflow-hidden bg-cover bg-center ${isDarkMode ? 'border-green-500/20' : 'border-green-100'}`}
               style={{ backgroundImage: customer.profilePicture ? `url(https://branchapi.ristestate.com${customer.profilePicture})` : 'none' }}>
               {!customer.profilePicture && (
@@ -204,7 +219,7 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-10 py-10 custom-scrollbar bg-inherit relative z-10">
+        <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar bg-inherit relative z-10">
           {loadingDetails ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
               <Loader2 className="animate-spin text-green-500" size={48} />
@@ -212,16 +227,16 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-6">
-                  <div className={`p-8 rounded-[2rem] border transition-all flex justify-between items-center ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-[#f8fafc] border-slate-200'}`}>
+                  <div className={`p-6 rounded-3xl border transition-all flex justify-between items-center ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-[#f8fafc] border-slate-200'}`}>
                     <div>
                       <p className="text-[9px] font-black text-[#94a3b8] uppercase tracking-widest mb-3">LIFETIME CONTRIBUTION</p>
                       <p className={`text-4xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-[#1e293b]'}`}>{customer.totalSpent.toLocaleString()}</p>
                     </div>
                     <span className="text-xs font-black text-[#94a3b8] uppercase italic">ETB</span>
                   </div>
-                  <div className={`p-8 rounded-[2rem] border transition-all flex justify-between items-center ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-[#f8fafc] border-slate-200'}`}>
+                  <div className={`p-6 rounded-3xl border transition-all flex justify-between items-center ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-[#f8fafc] border-slate-200'}`}>
                     <div>
                       <p className="text-[9px] font-black text-[#94a3b8] uppercase tracking-widest mb-3">TRANSACTION VELOCITY</p>
                       <p className={`text-4xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-[#1e293b]'}`}>{customer.totalOrders}</p>
@@ -230,8 +245,8 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
                   </div>
                 </div>
 
-                <div className={`p-8 rounded-[2rem] border transition-all ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-[#f1f5f9]'}`}>
-                  <h3 className={`text-[10px] font-black tracking-widest uppercase mb-8 ${isDarkMode ? 'text-slate-400' : 'text-[#94a3b8]'}`}>COMMERCIAL ANALYTICS TRAJECTORY</h3>
+                <div className={`p-6 rounded-3xl border transition-all ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-[#f1f5f9]'}`}>
+                  <h3 className={`text-[10px] font-black tracking-widest uppercase mb-6 ${isDarkMode ? 'text-slate-400' : 'text-[#94a3b8]'}`}>COMMERCIAL ANALYTICS TRAJECTORY</h3>
                   <div className="h-[180px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={trajectory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -259,7 +274,7 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
                 </h3>
               </div>
 
-              <div className={`border rounded-[2rem] overflow-hidden ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-[#f1f5f9] shadow-sm'}`}>
+              <div className={`border rounded-3xl overflow-hidden ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-[#f1f5f9] shadow-sm'}`}>
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-[#1a1d23] text-slate-500' : 'bg-[#fcfdfe] text-[#94a3b8]'}`}>
@@ -295,7 +310,7 @@ export const CustomerDetailModal: React.FC<{ customer: Customer, onClose: () => 
           )}
         </div>
 
-        <div className={`px-10 py-8 flex items-center justify-between border-t ${isDarkMode ? 'bg-[#1a1d23] border-slate-800' : 'bg-[#fcfdfe] border-[#f1f5f9]'}`}>
+        <div className={`px-8 py-6 flex items-center justify-between border-t ${isDarkMode ? 'bg-[#1a1d23] border-slate-800' : 'bg-[#fcfdfe] border-[#f1f5f9]'}`}>
           <div className="flex items-center gap-5">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-500' : 'bg-white border-[#f1f5f9] text-[#94a3b8] shadow-inner'}`}>
               <CreditCard size={24} />
@@ -373,10 +388,10 @@ const Users: React.FC<UsersProps> = ({ isDarkMode, onSelectCustomer }) => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+          <h1 className={`text-xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             Branch <span className="text-emerald-600">Customers</span>
           </h1>
-          <p className={`${isDarkMode ? 'text-slate-500' : 'text-slate-400'} text-sm mt-1 flex items-center gap-2 font-bold uppercase tracking-widest`}>
+          <p className={`${isDarkMode ? 'text-slate-500' : 'text-slate-400'} text-xs mt-1 flex items-center gap-2 font-bold uppercase tracking-widest`}>
             <UserIcon size={14} className="text-emerald-500" />
             Strategic Client Management & History
           </p>
@@ -390,11 +405,11 @@ const Users: React.FC<UsersProps> = ({ isDarkMode, onSelectCustomer }) => {
             <thead>
               <tr className={`border-b text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'bg-[#1a1d23] border-slate-800 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-400'
                 }`}>
-                <th className="px-8 py-5">Client Identity</th>
-                <th className="px-8 py-5">Contact Vector</th>
-                <th className="px-8 py-5">Order Velocity</th>
-                <th className="px-8 py-5">Contribution</th>
-                <th className="px-8 py-5 text-right">Inspect</th>
+                <th className="px-5 py-3">Client Identity</th>
+                <th className="px-5 py-3">Contact Vector</th>
+                <th className="px-5 py-3">Order Velocity</th>
+                <th className="px-5 py-3">Contribution</th>
+                <th className="px-5 py-3 text-right">Inspect</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
@@ -408,45 +423,45 @@ const Users: React.FC<UsersProps> = ({ isDarkMode, onSelectCustomer }) => {
               ) : (
                 customers.map((customer) => (
                   <tr key={customer.id} className={`group transition-colors ${isDarkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'}`}>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center border transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 text-green-500' : 'bg-white border-slate-200 text-green-600 shadow-sm'
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center border transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 text-green-500' : 'bg-white border-slate-200 text-green-600 shadow-sm'
                           }`}>
-                          <UserIcon size={20} />
+                          <UserIcon size={16} />
                         </div>
                         <div>
-                          <p className={`text-base font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{customer.name}</p>
-                          <p className="text-[10px] text-slate-500 font-mono tracking-tighter italic">#{customer.id}</p>
+                          <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{customer.name}</p>
+                          <p className="text-[9px] text-slate-500 font-mono tracking-tighter italic">#{customer.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="space-y-1">
-                        <p className={`text-xs font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{customer.phone}</p>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{customer.email}</p>
+                    <td className="px-5 py-4">
+                      <div className="space-y-0.5">
+                        <p className={`text-[11px] font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{customer.phone}</p>
+                        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{customer.email}</p>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black ${isDarkMode ? 'bg-slate-800 text-emerald-500' : 'bg-emerald-50 text-emerald-600'
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black ${isDarkMode ? 'bg-slate-800 text-emerald-500' : 'bg-emerald-50 text-emerald-600'
                           }`}>
                           {customer.totalOrders}
                         </div>
-                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Logs</span>
+                        <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Logs</span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className={`text-base font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                        {customer.totalSpent.toLocaleString()} <span className="text-[10px] text-slate-500 tracking-normal ml-0.5">ETB</span>
+                    <td className="px-5 py-4">
+                      <span className={`text-sm font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {customer.totalSpent.toLocaleString()} <span className="text-[9px] text-slate-500 tracking-normal ml-0.5">ETB</span>
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-right">
+                    <td className="px-5 py-4 text-right">
                       <button
                         onClick={() => onSelectCustomer(customer)}
-                        className={`p-3 rounded-xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:text-emerald-600'
+                        className={`p-2 rounded-lg transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:text-emerald-600'
                           }`}
                       >
-                        <ExternalLink size={18} />
+                        <ExternalLink size={16} />
                       </button>
                     </td>
                   </tr>

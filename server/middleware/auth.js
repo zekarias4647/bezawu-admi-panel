@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
     try {
         const secret = process.env.JWT_SECRET || 'your_jwt_secret';
         const decoded = jwt.verify(token, secret);
-        req.user = decoded; // Contains id, email, role, branchId, supermarketId
+        req.user = decoded; // Contains id, email, role, branchId, vendorId
         next();
     } catch (err) {
         console.error('JWT Verification Error:', err.message);
