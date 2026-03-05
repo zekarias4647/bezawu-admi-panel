@@ -1,10 +1,14 @@
 const express = require('express');
-
 const { check, validationResult, param } = require('express-validator');
 const router = express.Router();
 const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
 
+// ─── EMAIL INTEGRATION ────────────────────────────────────────────────────────
+// Ensure this path matches where you put the email.js utility
+const { sendStatusEmail } = require('../utils/email');
+
+// ─── GET /orders-get ──────────────────────────────────────────────────────────
 // Get all orders (with items and customer details)
 router.get('/orders-get', authMiddleware, async (req, res) => {
     try {
@@ -25,7 +29,7 @@ router.get('/orders-get', authMiddleware, async (req, res) => {
                 o.created_at as "timestamp",
                 o.arrived_at as "arrivedAt",
                 o.is_gift,
-                o.payment_proof_url as "paymentProofUrl",
+                o.payment_proof_url as payment_proof_url,
                 EXTRACT(EPOCH FROM o.handover_time) as "handoverTimeSeconds",
                 COALESCE(
                     json_agg(
@@ -110,13 +114,12 @@ router.get('/orders-get', authMiddleware, async (req, res) => {
                 items: Array.isArray(row.items) ? row.items : [],
                 arrivedAt: row.arrivedAt,
                 isGift: row.is_gift || false,
-                paymentProofUrl: row.paymentProofUrl || null,
+                paymentProofUrl: row.payment_proof_url ? (row.payment_proof_url.startsWith('http') ? row.payment_proof_url : `https://webappapi.bezawcurbside.com${row.payment_proof_url.startsWith('/') ? '' : '/'}${row.payment_proof_url}`) : null,
                 handoverTimeSeconds: row.handoverTimeSeconds ? parseFloat(row.handoverTimeSeconds) : null
             };
         });
 
-
-
+        console.log('[API] First 3 order PaymentProofUrls:', orders.slice(0, 3).map(o => o.paymentProofUrl));
         res.json(orders);
     } catch (err) {
         console.error('[API] Error fetching orders:', err);
@@ -124,7 +127,8 @@ router.get('/orders-get', authMiddleware, async (req, res) => {
     }
 });
 
-// Update order status
+// ─── PATCH /:id/status (UPDATED) ─────────────────────────────────────────────
+// Update order status and trigger email notifications
 router.patch('/:id/status', [
     authMiddleware,
     param('id', 'Invalid Order ID').notEmpty().isString(),
@@ -140,10 +144,12 @@ router.patch('/:id/status', [
     const { branchId, vendorId } = req.user;
 
     try {
+        // Fetch order AND customer email in one go
         let authCheckText = `
-            SELECT o.id 
+            SELECT o.id, u.email 
             FROM orders o 
             LEFT JOIN branches b ON o.branch_id = b.id 
+            LEFT JOIN customers u ON o.customer_id::text = u.id::text
             WHERE o.id = $1
         `;
         const authCheckParams = [id];
@@ -164,13 +170,14 @@ router.patch('/:id/status', [
             return res.status(403).json({ message: 'Unauthorized to update this order' });
         }
 
+        const customerEmail = authCheckResult.rows[0].email;
+
         let updateQuery = 'UPDATE orders SET status = $1';
         let queryParams = [status];
 
         if (status === 'ARRIVED') {
             updateQuery += ', arrived_at = COALESCE(arrived_at, NOW())';
         } else if (['COMPLETED', 'VERIFIED', 'GIVEN'].includes(status)) {
-            // Update completed_at only
             updateQuery += ', completed_at = NOW()';
         }
 
@@ -183,6 +190,30 @@ router.patch('/:id/status', [
             return res.status(404).json({ message: 'Order not found' });
         }
 
+        // ─── TRIGGER EMAIL LOGIC ───
+        if (customerEmail && customerEmail.trim().length > 0) {
+            let emailTitle = '';
+            let emailMessage = '';
+
+            const upperStatus = status.toUpperCase();
+            if (upperStatus === 'PREPARING') {
+                emailTitle = 'Order Preparing';
+                emailMessage = `Good news! Your order ${id} is now being prepared and will be ready soon.`;
+            } else if (['COMPLETED', 'VERIFIED', 'GIVEN', 'READY'].includes(upperStatus)) {
+                emailTitle = upperStatus === 'READY' ? 'Order Ready' : 'Order Handed Over';
+                emailMessage = upperStatus === 'READY'
+                    ? `Your order ${id} is now ready! Our team is waiting for you at the pickup point.`
+                    : `Your order ${id} has been handed over. Thank you for choosing Bezaw Curbside!`;
+            }
+
+            if (emailTitle) {
+                // Sent in background (no await) so API stays fast
+                sendStatusEmail(customerEmail, `Bezaw Curbside: ${emailTitle}`, emailTitle, emailMessage, id)
+                    .then(sent => console.log(`[Email] Notification sent for ${id}: ${sent}`))
+                    .catch(e => console.error(`[Email Error] ${e.message}`));
+            }
+        }
+
         res.json(result.rows[0]);
     } catch (err) {
         console.error('Error updating order status:', err);
@@ -190,7 +221,7 @@ router.patch('/:id/status', [
     }
 });
 
-// Get items for a specific order
+// ─── GET /:id/items ───────────────────────────────────────────────────────────
 router.get('/:id/items', authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { branchId, vendorId } = req.user;
@@ -257,7 +288,7 @@ router.get('/:id/items', authMiddleware, async (req, res) => {
     }
 });
 
-// Get recent arrivals for alerting
+// ─── GET /arrivals-get ────────────────────────────────────────────────────────
 router.get('/arrivals-get', authMiddleware, async (req, res) => {
     try {
         const { branchId, vendorId } = req.user;
@@ -276,7 +307,7 @@ router.get('/arrivals-get', authMiddleware, async (req, res) => {
                 o.car_plate,
                 o.arrived_at as "arrivedAt",
                 o.is_gift,
-                o.payment_proof_url as "paymentProofUrl",
+                o.payment_proof_url as payment_proof_url,
                 EXTRACT(EPOCH FROM o.handover_time) as "handoverTimeSeconds",
                 COALESCE(
                     json_agg(
@@ -354,7 +385,7 @@ router.get('/arrivals-get', authMiddleware, async (req, res) => {
                 items: row.items,
                 arrivedAt: row.arrivedAt,
                 isGift: row.is_gift || false,
-                paymentProofUrl: row.paymentProofUrl || null,
+                paymentProofUrl: row.payment_proof_url ? (row.payment_proof_url.startsWith('http') ? row.payment_proof_url : `https://webappapi.bezawcurbside.com${row.payment_proof_url.startsWith('/') ? '' : '/'}${row.payment_proof_url}`) : null,
                 handoverTimeSeconds: row.handoverTimeSeconds ? parseFloat(row.handoverTimeSeconds) : null
             };
         });

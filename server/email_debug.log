@@ -1,0 +1,4 @@
+[2026-03-05T20:21:04.519Z] ✅ [SMTP Fallback] Gmail Server is Ready.
+[2026-03-05T20:21:13.893Z] ❌ [SMTP Support] Connection failed: Greeting never received
+[2026-03-05T20:21:24.588Z] ✅ [SMTP Fallback] Gmail Server is Ready.
+[2026-03-05T20:21:33.267Z] ❌ [SMTP Support] Connection failed: Greeting never received

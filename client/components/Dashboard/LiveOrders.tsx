@@ -561,6 +561,8 @@ export const OrderDetailsModal: React.FC<{
   onOpenChat: (order: Order) => void,
   isDarkMode: boolean
 }> = ({ order, onClose, onUpdateStatus, onOpenFulfillment, onOpenChat, isDarkMode }) => {
+  const [showFullImage, setShowFullImage] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/15 backdrop-blur-sm animate-in fade-in duration-300">
       <div className={`max-w-3xl w-full max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl transition-all border animate-in zoom-in-95 duration-200 ${isDarkMode ? 'bg-[#121418] border-slate-800' : 'bg-white border-slate-100'
@@ -717,14 +719,52 @@ export const OrderDetailsModal: React.FC<{
               </div>
 
               {order.paymentProofUrl ? (
-                <div className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-3 transition-colors ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <h3 className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 self-start">PAYMENT PROOF</h3>
-                  <img src={`https://branchapi.bezawcurbside.com/uploads/${order.paymentProofUrl}`} alt="Payment Proof" className="max-h-64 object-contain rounded-xl w-full" />
+                <div
+                  onClick={() => setShowFullImage(true)}
+                  className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer group ${isDarkMode ? 'bg-[#0f1115] border-slate-800 hover:border-green-500/50' : 'bg-white border-slate-200 hover:border-green-500/50'}`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <h3 className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400">PAYMENT PROOF</h3>
+                    <div className="text-[8px] font-bold text-green-500 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Click to enlarge</div>
+                  </div>
+                  <img
+                    src={order.paymentProofUrl.startsWith('http') ? order.paymentProofUrl : `https://webappapi.bezawcurbside.com${order.paymentProofUrl.startsWith('/') ? '' : '/'}${order.paymentProofUrl}`}
+                    alt="Payment Proof"
+                    className="max-h-64 object-contain rounded-xl w-full"
+                  />
                 </div>
               ) : (
                 <div className={`p-4 rounded-2xl border-2 border-dashed flex items-center justify-center gap-3 transition-colors ${isDarkMode ? 'bg-green-500/5 border-slate-800 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
                   <CreditCard size={20} />
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em]">PAYMENT CONFIRMED (DIGITAL)</span>
+                </div>
+              )}
+
+              {/* Full Image Overlay */}
+              {showFullImage && order.paymentProofUrl && (
+                <div
+                  className="fixed inset-0 z-[100000] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-300"
+                  onClick={() => setShowFullImage(false)}
+                >
+                  <div className="relative max-w-5xl w-full h-full flex items-center justify-center rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200">
+                    <img
+                      src={order.paymentProofUrl.startsWith('http') ? order.paymentProofUrl : `https://webappapi.bezawcurbside.com${order.paymentProofUrl.startsWith('/') ? '' : '/'}${order.paymentProofUrl}`}
+                      className="max-h-full max-w-full object-contain shadow-2xl rounded-lg"
+                      alt="Full Payment Proof"
+                    />
+                    <button
+                      className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition-all border border-white/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowFullImage(false);
+                      }}
+                    >
+                      <X size={24} />
+                    </button>
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/70 text-xs font-bold uppercase tracking-widest">
+                      Click anywhere to exit
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
