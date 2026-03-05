@@ -27,6 +27,12 @@ import AddStoryModal from '../forms/AddStoryModal';
 import Gifts from '../Dashboard/Gifts';
 import Runners from '../Dashboard/Runners';
 import AddRunnerModal from '../forms/AddRunnerModal';
+import AddBankAccount from '../Dashboard/AddBankAccount';
+import ChatModal from '../Dashboard/ChatModal';
+import FulfillmentView from '../FulfillmentView';
+import { OrderStatus as StatusEnum } from '../../types';
+
+
 
 // ... other imports ...
 
@@ -48,6 +54,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   const [adsRefreshKey, setAdsRefreshKey] = useState(0);
   const [runnersRefreshKey, setRunnersRefreshKey] = useState(0);
   const [giftsRefreshKey, setGiftsRefreshKey] = useState(0);
+
+  // New Global States for Order Interaction
+  const [isFulfillmentActive, setIsFulfillmentActive] = useState(false);
+  const [fulfillmentOrder, setFulfillmentOrder] = useState<Order | null>(null);
+  const [selectedChatOrder, setSelectedChatOrder] = useState<Order | null>(null);
+
 
   const handleToggleBusy = async () => {
     const nextBusy = !isBusy;
@@ -221,7 +233,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
         onAddRunner={() => setIsAddRunnerOpen(true)}
       />;
       case 'users': return <Users isDarkMode={isDarkMode} onSelectCustomer={setSelectedCustomer} />;
+      case 'bank': return <AddBankAccount isDarkMode={isDarkMode} user={user} />;
       case 'settings': return <Settings
+
         isDarkMode={isDarkMode}
         isBusy={isBusy}
         onToggleBusy={handleToggleBusy}
@@ -245,7 +259,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   if (branchStatus === BranchStatus.SHUTDOWN) {
     return (
       <div className={`flex h-screen w-screen overflow-hidden ${isDarkMode ? 'bg-[#0f1115]' : 'bg-slate-50'}`}>
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onLogout={onLogout} isDarkMode={isDarkMode} />
+        <Sidebar user={user} activeTab={activeTab} onTabChange={setActiveTab} onLogout={onLogout} isDarkMode={isDarkMode} />
         <div className="flex-1 relative">
           <BranchOffline branchName={user.branchName} onRestore={() => setBranchStatus(BranchStatus.ACTIVE)} />
         </div>
@@ -284,6 +298,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
           onUpdateStatus={(status) => handleUpdateStatus(selectedOrder.id, status)}
+          onOpenFulfillment={(order) => {
+            setFulfillmentOrder(order);
+            setIsFulfillmentActive(true);
+            setSelectedOrder(null);
+          }}
+          onOpenChat={(order) => {
+            setSelectedChatOrder(order);
+          }}
           isDarkMode={isDarkMode}
         />
       )}
@@ -364,6 +386,32 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
           isDarkMode={isDarkMode}
         />
       )}
+
+      {selectedChatOrder && (
+        <ChatModal
+          order={selectedChatOrder}
+          onClose={() => setSelectedChatOrder(null)}
+          isDarkMode={isDarkMode}
+        />
+      )}
+
+      {isFulfillmentActive && fulfillmentOrder && (
+        <div className="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md overflow-hidden flex flex-col pt-16">
+          <FulfillmentView
+            order={fulfillmentOrder}
+            onBack={() => {
+              setIsFulfillmentActive(false);
+              setFulfillmentOrder(null);
+            }}
+            onUpdateStatus={handleUpdateStatus}
+            onOpenChat={(order) => {
+              setSelectedChatOrder(order);
+            }}
+            isDarkMode={isDarkMode}
+          />
+        </div>
+      )}
+
     </div>
   );
 };

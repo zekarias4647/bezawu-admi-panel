@@ -31,6 +31,41 @@ const giftsRoutes = require('./router/gifts');
 const runnerRoutes = require('./router/runners');
 const businessTypeRoutes = require('./router/business_types');
 const reportRoutes = require('./router/report');
+const bankRoutes = require('./router/bank');
+
+
+// 1. Define allowed origins
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://branchportal.bezawcurbside.com',
+    'https://branchapi.bezawcurbside.com',
+    'https://branch.ristestate.com'
+];
+
+// 2. Comprehensive CORS Middleware
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin?.startsWith('http://localhost'))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Handle Preflight
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+    next();
+});
+
+// 3. Keep standard CORS as backup for complex rules
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 
 app.use(helmet({
     contentSecurityPolicy: false, // Temporarily disable CSP if it conflicts heavily with local dev tools (Vite/React often need blobs/unsafe-eval)
@@ -38,17 +73,6 @@ app.use(helmet({
     referrerPolicy: { policy: "no-referrer-when-downgrade" } // More compatible for local dev
 }));
 
-const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'https://branch.ristestate.com'] // Add your production domains here
-        : '*', // Allow all in development
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -73,6 +97,8 @@ app.use('/api/gifts', giftsRoutes);
 app.use('/api/runners', runnerRoutes);
 app.use('/api/business-types', businessTypeRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/bank', bankRoutes);
+
 
 
 

@@ -1,5 +1,8 @@
 
 import React from 'react';
+
+export const BASE_API_URL = import.meta.env.VITE_API_URL || 'https://branchapi.bezawcurbside.com';
+
 import {
   ShoppingBag,
   Package,
@@ -14,8 +17,10 @@ import {
   Film,
   ImageIcon,
   UserCheck,
-  FileText
+  FileText,
+  Landmark
 } from 'lucide-react';
+
 import { OrderStatus } from './types';
 
 export const COLORS = {
@@ -38,8 +43,10 @@ export const NAVIGATION = [
   { name: 'Runners', icon: <UserCheck size={20} />, id: 'runners' },
   { name: 'Reports', icon: <FileText size={20} />, id: 'reports' },
   { name: 'Users', icon: <UsersIcon size={20} />, id: 'users' },
+  { name: 'Bank Account', icon: <Landmark size={20} />, id: 'bank' },
   { name: 'Settings', icon: <Settings size={20} />, id: 'settings' },
 ];
+
 
 export const STATUS_MAP: Record<OrderStatus, { label: string; color: string; icon: React.ReactNode }> = {
   [OrderStatus.PENDING]: { label: 'Pending', color: 'text-slate-400', icon: <Clock size={16} /> },

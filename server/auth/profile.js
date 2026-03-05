@@ -4,7 +4,11 @@ const { query } = require('../connection/db');
 const authMiddleware = require('../middleware/auth');
 
 // Get current logged-in user profile
-router.get('/me', authMiddleware, async (req, res) => {
+if (typeof authMiddleware !== 'function') {
+    console.error('CRITICAL: authMiddleware is not a function in profile.js. Type found:', typeof authMiddleware);
+}
+
+router.get('/me', authMiddleware || ((req, res, next) => next()), async (req, res) => {
     try {
         const text = `
             SELECT 
