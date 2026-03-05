@@ -33,7 +33,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({ onClose, onSuccess, isDarkM
         const fetchProducts = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch('https://branchapi.ristestate.com/api/products/products-get', {
+                const res = await fetch('https://branchapi.bezawcurbside.com/api/products/products-get', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -124,7 +124,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({ onClose, onSuccess, isDarkM
             if (mediaFile) {
                 const form = new FormData();
                 form.append('image', mediaFile);
-                const uploadRes = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+                const uploadRes = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: form
@@ -138,7 +138,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({ onClose, onSuccess, isDarkM
                 if (firstProduct) imageUrl = firstProduct.image_url;
             }
 
-            const res = await fetch('https://branchapi.ristestate.com/api/gifts/gifts-post', {
+            const res = await fetch('https://branchapi.bezawcurbside.com/api/gifts/gifts-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

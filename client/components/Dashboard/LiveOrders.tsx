@@ -53,7 +53,7 @@ export const LiveOrders: React.FC<LiveOrdersProps> = ({ isDarkMode, onUpdateStat
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://branchapi.ristestate.com/api/orders/orders-get', {
+      const response = await fetch('https://branchapi.bezawcurbside.com/api/orders/orders-get', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,7 +88,7 @@ export const LiveOrders: React.FC<LiveOrdersProps> = ({ isDarkMode, onUpdateStat
   const handleUpdateStatus = async (id: string, status: OrderStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://branchapi.ristestate.com/api/orders/${id}/status`, {
+      const response = await fetch(`https://branchapi.bezawcurbside.com/api/orders/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -719,7 +719,7 @@ export const OrderDetailsModal: React.FC<{
               {order.paymentProofUrl ? (
                 <div className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-3 transition-colors ${isDarkMode ? 'bg-[#0f1115] border-slate-800' : 'bg-white border-slate-200'}`}>
                   <h3 className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 self-start">PAYMENT PROOF</h3>
-                  <img src={`https://branchapi.ristestate.com/uploads/${order.paymentProofUrl}`} alt="Payment Proof" className="max-h-64 object-contain rounded-xl w-full" />
+                  <img src={`https://branchapi.bezawcurbside.com/uploads/${order.paymentProofUrl}`} alt="Payment Proof" className="max-h-64 object-contain rounded-xl w-full" />
                 </div>
               ) : (
                 <div className={`p-4 rounded-2xl border-2 border-dashed flex items-center justify-center gap-3 transition-colors ${isDarkMode ? 'bg-green-500/5 border-slate-800 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>

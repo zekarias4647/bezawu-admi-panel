@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ user, isBusy, onToggleBusy, isDarkMode,
   useEffect(() => {
     const fetchCommission = async () => {
       try {
-        const response = await fetch('https://branchapi.ristestate.com/api/system/commission');
+        const response = await fetch('https://branchapi.bezawcurbside.com/api/system/commission');
         if (response.ok) {
           const data = await response.json();
           setCommissionRate(data.commission_rate);

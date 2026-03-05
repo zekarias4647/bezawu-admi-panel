@@ -44,7 +44,7 @@ const AddBundleModal: React.FC<AddBundleModalProps> = ({ onClose, onSuccess, isD
     const fetchProducts = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://branchapi.ristestate.com/api/products/products-get', {
+        const response = await fetch('https://branchapi.bezawcurbside.com/api/products/products-get', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
@@ -153,7 +153,7 @@ const AddBundleModal: React.FC<AddBundleModalProps> = ({ onClose, onSuccess, isD
         const uploadData = new FormData();
         uploadData.append('image', imageFile);
 
-        const uploadResponse = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+        const uploadResponse = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -188,7 +188,7 @@ const AddBundleModal: React.FC<AddBundleModalProps> = ({ onClose, onSuccess, isD
         bundle_addons: showExtras ? bundleAddons.map(a => ({ name: a.name, price: parseFloat(a.price) })) : []
       };
 
-      const response = await fetch('https://branchapi.ristestate.com/api/bundles/bundles-post', {
+      const response = await fetch('https://branchapi.bezawcurbside.com/api/bundles/bundles-post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

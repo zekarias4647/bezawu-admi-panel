@@ -39,7 +39,7 @@ const AddRunnerModal: React.FC<AddRunnerModalProps> = ({ onClose, onSuccess, isD
                 const uploadData = new FormData();
                 uploadData.append('image', imageFile);
 
-                const uploadResponse = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+                const uploadResponse = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: uploadData
@@ -58,7 +58,7 @@ const AddRunnerModal: React.FC<AddRunnerModalProps> = ({ onClose, onSuccess, isD
                 pro_image: imageUrl
             };
 
-            const response = await fetch('https://branchapi.ristestate.com/api/runners/runners-post', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/runners/runners-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

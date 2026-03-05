@@ -71,7 +71,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
     try {
       const token = localStorage.getItem('token');
       // 1. Fetch main stats (FAST)
-      const response = await fetch('https://branchapi.ristestate.com/api/analytics/dashboard-stats', {
+      const response = await fetch('https://branchapi.bezawcurbside.com/api/analytics/dashboard-stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -82,7 +82,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isDarkMode }) => {
 
         // 2. Fetch AI predictions (SLOW)
         try {
-          const aiResponse = await fetch('https://branchapi.ristestate.com/api/analytics/prediction', {
+          const aiResponse = await fetch('https://branchapi.bezawcurbside.com/api/analytics/prediction', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (aiResponse.ok) {

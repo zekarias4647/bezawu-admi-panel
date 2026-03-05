@@ -19,7 +19,7 @@ const OTP: React.FC<OTPProps> = ({ email, onSuccess, onBack }) => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('https://branchapi.ristestate.com/api/forget/verify-otp', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/forget/verify-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

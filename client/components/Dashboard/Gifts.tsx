@@ -33,7 +33,7 @@ interface GiftsProps {
 const getImageUrl = (url: string | null) => {
     if (!url) return null;
     if (url.startsWith('http')) return url;
-    return `https://branchapi.ristestate.com${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://branchapi.bezawcurbside.com${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
 export const Gifts: React.FC<GiftsProps> = ({ isDarkMode, onSuccess }) => {
@@ -46,7 +46,7 @@ export const Gifts: React.FC<GiftsProps> = ({ isDarkMode, onSuccess }) => {
     const fetchGifts = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://branchapi.ristestate.com/api/gifts/gifts-get', {
+            const res = await fetch('https://branchapi.bezawcurbside.com/api/gifts/gifts-get', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -67,7 +67,7 @@ export const Gifts: React.FC<GiftsProps> = ({ isDarkMode, onSuccess }) => {
     const handleToggle = async (id: number) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://branchapi.ristestate.com/api/gifts/${id}/toggle`, {
+            const res = await fetch(`https://branchapi.bezawcurbside.com/api/gifts/${id}/toggle`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -81,7 +81,7 @@ export const Gifts: React.FC<GiftsProps> = ({ isDarkMode, onSuccess }) => {
         if (!confirm('Are you sure you want to delete this gift?')) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://branchapi.ristestate.com/api/gifts/${id}`, {
+            const res = await fetch(`https://branchapi.bezawcurbside.com/api/gifts/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

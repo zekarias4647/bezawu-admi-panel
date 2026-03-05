@@ -17,7 +17,7 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('https://branchapi.ristestate.com/api/runners/runners-get', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/runners/runners-get', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -39,7 +39,7 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
         try {
             const token = localStorage.getItem('token');
             const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-            const response = await fetch(`https://branchapi.ristestate.com/api/runners/${id}/status`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/runners/${id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
         if (!window.confirm('Terminate this runner contract? This action cannot be undone.')) return;
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/runners/${id}`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/runners/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -81,7 +81,7 @@ const Runners: React.FC<RunnersProps> = ({ isDarkMode, onAddRunner }) => {
     const getImageUrl = (url?: string) => {
         if (!url) return 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=100';
         if (url.startsWith('http')) return url;
-        return `https://branchapi.ristestate.com${url}`;
+        return `https://branchapi.bezawcurbside.com${url}`;
     };
 
     if (loading) {

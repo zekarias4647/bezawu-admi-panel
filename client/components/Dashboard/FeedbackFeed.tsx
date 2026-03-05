@@ -23,7 +23,7 @@ export const FeedbackFeed: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) 
   const fetchFeedback = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://branchapi.ristestate.com/api/feedback/feedback-get', {
+      const response = await fetch('https://branchapi.bezawcurbside.com/api/feedback/feedback-get', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {

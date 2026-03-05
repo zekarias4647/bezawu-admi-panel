@@ -37,7 +37,7 @@ const AddStoryModal: React.FC<AddStoryModalProps> = ({ onClose, onSuccess, isDar
             const uploadData = new FormData();
             uploadData.append('image', videoFile); // Backend currently expects 'image' as field name
 
-            const uploadResponse = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+            const uploadResponse = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: uploadData
@@ -51,7 +51,7 @@ const AddStoryModal: React.FC<AddStoryModalProps> = ({ onClose, onSuccess, isDar
             }
 
             // Create Story
-            const response = await fetch('https://branchapi.ristestate.com/api/stories/stories-post', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/stories/stories-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

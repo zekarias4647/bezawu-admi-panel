@@ -34,7 +34,7 @@ const Reports: React.FC<ReportsProps> = ({ isDarkMode }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('https://branchapi.ristestate.com/api/reports', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/reports', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -57,7 +57,7 @@ const Reports: React.FC<ReportsProps> = ({ isDarkMode }) => {
     const handleStatusUpdate = async (id: number, status: string) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/reports/${id}/status`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/reports/${id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

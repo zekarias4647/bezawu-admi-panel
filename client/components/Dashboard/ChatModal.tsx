@@ -26,7 +26,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ order, onClose, isDarkMode }) => 
     const fetchMessages = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/chat/${order.id}`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/chat/${order.id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -47,7 +47,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ order, onClose, isDarkMode }) => 
         setSending(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/chat/${order.id}`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/chat/${order.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

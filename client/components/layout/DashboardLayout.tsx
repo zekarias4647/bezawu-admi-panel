@@ -53,7 +53,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
     const nextBusy = !isBusy;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://branchapi.ristestate.com/api/settings/toggle-busy', {
+      const response = await fetch('https://branchapi.bezawcurbside.com/api/settings/toggle-busy', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
       const { playNotificationSound } = await import('../../services/soundService');
 
       // 1. Check Arrivals
-      const arrivalRes = await fetch('https://branchapi.ristestate.com/api/orders/arrivals-get', {
+      const arrivalRes = await fetch('https://branchapi.bezawcurbside.com/api/orders/arrivals-get', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (arrivalRes.ok) {
@@ -108,7 +108,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
       }
 
       // 2. Check Pending Orders (Global Sound)
-      const orderRes = await fetch('https://branchapi.ristestate.com/api/orders/orders-get', {
+      const orderRes = await fetch('https://branchapi.bezawcurbside.com/api/orders/orders-get', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (orderRes.ok) {
@@ -136,7 +136,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout, isDar
   const handleUpdateStatus = async (orderId: string, nextStatus: OrderStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://branchapi.ristestate.com/api/orders/${orderId}/status`, {
+      const response = await fetch(`https://branchapi.bezawcurbside.com/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

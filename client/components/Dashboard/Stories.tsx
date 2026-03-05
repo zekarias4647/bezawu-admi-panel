@@ -19,7 +19,7 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('https://branchapi.ristestate.com/api/stories/stories-get', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/stories/stories-get', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -42,7 +42,7 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
             const fetchStoryDetails = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await fetch(`https://branchapi.ristestate.com/api/stories/${selectedStory.id}`, {
+                    const response = await fetch(`https://branchapi.bezawcurbside.com/api/stories/${selectedStory.id}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (response.ok) {
@@ -60,7 +60,7 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
                 setLoadingComments(true);
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await fetch(`https://branchapi.ristestate.com/api/stories/${selectedStory.id}/comments`, {
+                    const response = await fetch(`https://branchapi.bezawcurbside.com/api/stories/${selectedStory.id}/comments`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (response.ok) {
@@ -85,7 +85,7 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
         if (!window.confirm('Are you sure you want to delete this story?')) return;
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/stories/${id}`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/stories/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -102,7 +102,7 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
         e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/stories/${id}/toggle`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/stories/${id}/toggle`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -121,10 +121,10 @@ const Stories: React.FC<StoriesProps> = ({ isDarkMode, onAddStory }) => {
         if (!url) return '';
         if (url.includes('/uploads/')) {
             const filename = url.split('/uploads/')[1];
-            return `https://branchapi.ristestate.com/uploads/${filename}`;
+            return `https://branchapi.bezawcurbside.com/uploads/${filename}`;
         }
         if (url.startsWith('http')) return url;
-        return `https://branchapi.ristestate.com${url}`;
+        return `https://branchapi.bezawcurbside.com${url}`;
     };
 
     const filteredStories = stories.filter(s =>

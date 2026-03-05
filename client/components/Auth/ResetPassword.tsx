@@ -26,7 +26,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
             setLoading(true);
             setError('');
             try {
-                const response = await fetch('https://branchapi.ristestate.com/api/forget/reset-password', {
+                const response = await fetch('https://branchapi.bezawcurbside.com/api/forget/reset-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

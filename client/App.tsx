@@ -44,7 +44,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const checkSystemStatus = async () => {
             try {
-                const response = await fetch('https://branchapi.ristestate.com/api/system/status');
+                const response = await fetch('https://branchapi.bezawcurbside.com/api/system/status');
                 if (response.ok) {
                     const status = await response.json();
 
@@ -70,7 +70,7 @@ const App: React.FC = () => {
         const token = localStorage.getItem('token');
         if (token) {
             setIsLoading(true);
-            fetch('https://branchapi.ristestate.com/api/auth/me', {
+            fetch('https://branchapi.bezawcurbside.com/api/auth/me', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

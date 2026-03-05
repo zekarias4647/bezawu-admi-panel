@@ -19,7 +19,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         setError('');
 
         try {
-            const response = await fetch('https://branchapi.ristestate.com/api/forget/send-otp', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/forget/send-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

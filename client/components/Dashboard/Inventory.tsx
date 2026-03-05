@@ -11,7 +11,7 @@ interface InventoryProps {
 const getImageUrl = (url: string | null) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `https://branchapi.ristestate.com${url.startsWith('/') ? '' : '/'}${url}`;
+  return `https://branchapi.bezawcurbside.com${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
 export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, onSelectProduct }) => {
@@ -25,7 +25,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
   const fetchItems = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    fetch(`https://branchapi.ristestate.com/api/products/products-get?showDeleted=${showTrash}`, {
+    fetch(`https://branchapi.bezawcurbside.com/api/products/products-get?showDeleted=${showTrash}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -49,7 +49,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('https://branchapi.ristestate.com/api/categories/categories-get', {
+      const res = await fetch('https://branchapi.bezawcurbside.com/api/categories/categories-get', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -81,7 +81,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
   const handleToggleStatus = async (productId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`https://branchapi.ristestate.com/api/products/${productId}/toggle-status`, {
+      const res = await fetch(`https://branchapi.bezawcurbside.com/api/products/${productId}/toggle-status`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -96,7 +96,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
   const handleRestore = async (productId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`https://branchapi.ristestate.com/api/products/${productId}/restore`, {
+      const res = await fetch(`https://branchapi.bezawcurbside.com/api/products/${productId}/restore`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -202,7 +202,6 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Product</th>
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Category</th>
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Price</th>
-                <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock</th>
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Availability</th>
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Status</th>
                 <th className={`px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-right ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Actions</th>
@@ -236,19 +235,15 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
                       <span className={`text-[10px] px-2 py-0.5 rounded-full w-fit ${isDarkMode ? 'text-slate-400 bg-slate-800' : 'text-slate-600 bg-slate-100 border border-slate-200'}`}>
                         {item.category}
                       </span>
+                      {item.subcategory && (
+                        <span className="text-[8px] px-2 w-fit text-emerald-500 font-bold uppercase tracking-widest">
+                          ↳ {item.subcategory}
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-2">
                     <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>{item.price} ETB</span>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className={`text-xs font-bold flex items-center gap-1 ${item.stock === -1 ? 'text-indigo-400' : item.stock < 10 ? 'text-red-500' : isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                      {item.stock === -1 ? (
-                        <Infinity size={12} className="opacity-70" />
-                      ) : (
-                        `${item.stock}`
-                      )}
-                    </span>
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-1.5">
@@ -294,7 +289,7 @@ export const Inventory: React.FC<InventoryProps> = ({ isDarkMode, onAddProduct, 
                         onClick={() => {
                           if (confirm('Are you sure you want to move this product to Trash?')) {
                             const token = localStorage.getItem('token');
-                            fetch(`https://branchapi.ristestate.com/api/products/${item.id}`, {
+                            fetch(`https://branchapi.bezawcurbside.com/api/products/${item.id}`, {
                               method: 'DELETE',
                               headers: { 'Authorization': `Bearer ${token}` }
                             })
@@ -334,7 +329,7 @@ export const AdjustStockModal: React.FC<{ product: any, onClose: () => void, onS
       setCatLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('https://branchapi.ristestate.com/api/categories/categories-get', {
+        const res = await fetch('https://branchapi.bezawcurbside.com/api/categories/categories-get', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -354,7 +349,7 @@ export const AdjustStockModal: React.FC<{ product: any, onClose: () => void, onS
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`https://branchapi.ristestate.com/api/products/${product.id}`, {
+      const res = await fetch(`https://branchapi.bezawcurbside.com/api/products/${product.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

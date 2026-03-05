@@ -137,7 +137,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
             const headers = { 'Authorization': `Bearer ${token}` };
 
             // Fetch categories
-            const catRes = await fetch('https://branchapi.ristestate.com/api/categories/categories-get', { headers });
+            const catRes = await fetch('https://branchapi.bezawcurbside.com/api/categories/categories-get', { headers });
             if (catRes.ok) {
                 const catData = await catRes.json();
                 setCategories(catData);
@@ -165,7 +165,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
         setConfigLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://branchapi.ristestate.com/api/business-types/${user.businessType}`, {
+            const response = await fetch(`https://branchapi.bezawcurbside.com/api/business-types/${user.businessType}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -226,7 +226,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
                 const formDataUpload = new FormData();
                 formDataUpload.append('image', mediaFile);
 
-                const uploadRes = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+                const uploadRes = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formDataUpload
@@ -243,7 +243,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAddCategor
                 }
             }
 
-            const response = await fetch('https://branchapi.ristestate.com/api/products/products-post', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/products/products-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

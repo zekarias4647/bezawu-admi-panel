@@ -19,7 +19,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ onClose, onSuccess,
         const fetchExistingCategories = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('https://branchapi.ristestate.com/api/categories/categories-get', {
+                const response = await fetch('https://branchapi.bezawcurbside.com/api/categories/categories-get', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -43,7 +43,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ onClose, onSuccess,
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('https://branchapi.ristestate.com/api/categories/categories-post', {
+            const response = await fetch('https://branchapi.bezawcurbside.com/api/categories/categories-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

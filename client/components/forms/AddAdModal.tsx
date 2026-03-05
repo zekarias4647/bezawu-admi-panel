@@ -43,7 +43,7 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, onSuccess, isD
 
             const token = localStorage.getItem('token');
 
-            const uploadRes = await fetch('https://branchapi.ristestate.com/api/upload/image', {
+            const uploadRes = await fetch('https://branchapi.bezawcurbside.com/api/upload/image', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -53,7 +53,7 @@ const AddAdModal: React.FC<AddAdModalProps> = ({ isOpen, onClose, onSuccess, isD
             const uploadData = await uploadRes.json();
             const mediaUrl = uploadData.imageUrl;
 
-            const adRes = await fetch('https://branchapi.ristestate.com/api/ads/ads-post', {
+            const adRes = await fetch('https://branchapi.bezawcurbside.com/api/ads/ads-post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
